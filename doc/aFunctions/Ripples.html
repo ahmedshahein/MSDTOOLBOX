@@ -1,0 +1,82 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of Ripples</title>
+  <meta name="keywords" content="Ripples">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- # aFunctions -->
+<h1>Ripples
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [rpb rsb] = Ripples(rp, rc, convert) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">
+ [rpb rsb] = Ripples(rp, rc, convert)
+
+ This function to convert the passband ripples and stopbanb attenuation 
+ from or to Linear format to or from dB format.
+
+   rp:         Passband ripples        'absoulte value without signs'
+   rc:         Stopband attenuation    'absoulte value without signs'
+   convert:    Flag to convert inputs form 
+               'L2dB'  Linear -&gt; dB    
+               'dB2L'  dB -&gt; Linear</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="HalfBandFilter.html" class="code" title="function HB_stage = HalfBandFilter(Rpb, Rsb, Type, deltaF_2, N)">HalfBandFilter</a>	</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [rpb rsb] = Ripples(rp, rc, convert)</a>
+0002 
+0003 <span class="comment">%</span>
+0004 <span class="comment">% [rpb rsb] = Ripples(rp, rc, convert)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% This function to convert the passband ripples and stopbanb attenuation</span>
+0007 <span class="comment">% from or to Linear format to or from dB format.</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">%   rp:         Passband ripples        'absoulte value without signs'</span>
+0010 <span class="comment">%   rc:         Stopband attenuation    'absoulte value without signs'</span>
+0011 <span class="comment">%   convert:    Flag to convert inputs form</span>
+0012 <span class="comment">%               'L2dB'  Linear -&gt; dB</span>
+0013 <span class="comment">%               'dB2L'  dB -&gt; Linear</span>
+0014 <span class="comment">%</span>
+0015 
+0016 <span class="keyword">if</span> convert == <span class="string">'L2dB'</span>,
+0017     rp_dB = 20*log10((1+rp)/(1-rp));
+0018     rc_dB = -20*log10(rc);
+0019     rpb = rp_dB;
+0020     rsb = rc_dB;
+0021 <span class="keyword">elseif</span> convert == <span class="string">'dB2L'</span>,
+0022     rp_L=(10^(rp/20)-1)/(10^(rp/20)+1);
+0023     rc_L=10^(-rc/20);
+0024     rpb = rp_L;
+0025     rsb = rc_L;
+0026 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Tue 17-Apr-2012 15:26:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

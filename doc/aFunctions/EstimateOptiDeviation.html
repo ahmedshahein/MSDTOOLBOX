@@ -1,0 +1,134 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of EstimateOptiDeviation</title>
+  <meta name="keywords" content="EstimateOptiDeviation">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- # aFunctions -->
+<h1>EstimateOptiDeviation
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function EstimateOptiDeviation(filter_coefficients, filter_lengths, Fs, K, Q, Nb, deviation_value) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">
+ EstimateOptiDeviation(filter_coefficients, filter_lengths, Fs, K, Q, deviation_value)
+
+ This function estimates the effect of filter coefficent optimzation at
+ each decimation stage according to the deviation criteria. It exports a
+ plot, in which each row of subplots represent a single deciamtion stage
+ while the total number of subplot rows represent the total number of
+ decimation stages. In each row there are two subplots, the first subplot
+ represents the deviation in filter coefficeints while the second one
+ represents the filter response before and after optimization.
+
+   filter_coefficients:    Matrix of filter coefficients exported from 'decimation_filters' function, 
+                           which represents the coefficients at each stage
+   filter_lengths:         Vector of filter lengths exported from 'decimation_filters' function, which 
+                           represents the filter length at each stage 
+   Fs:                     Sampling frequency
+   K:                      Number of decimation stages
+   Q:                      Quantization bit width
+   deviation_value:        Any arbitrary value for the accepted value of
+                           deviation factor between coefficient and its rounded value, i.e.
+                           coeff           = [53 67 98 28]
+                           rounded_coeff   = [48 64 96 32]
+                           deviation       = [5 3 2 4]
+                           if the deviation_value = 3, then only two factor will be rounded,
+                           coeff(2) and coeff(3)</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="DenormalizeCoeff.html" class="code" title="function dcoeff = DenormalizeCoeff(coeff)">DenormalizeCoeff</a>	This function denormalize the normalized flter coefficients, to have</li><li><a href="OptiMixedCoeff.html" class="code" title="function [deviation_in_coeff norm_coeff mixed_coeff count] = OptiMixedCoeff(coeff, Q, Nb, deviation_value)">OptiMixedCoeff</a>	</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function EstimateOptiDeviation(filter_coefficients, filter_lengths, Fs, K, Q, Nb, deviation_value)</a>
+0002 
+0003 <span class="comment">%</span>
+0004 <span class="comment">% EstimateOptiDeviation(filter_coefficients, filter_lengths, Fs, K, Q, deviation_value)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% This function estimates the effect of filter coefficent optimzation at</span>
+0007 <span class="comment">% each decimation stage according to the deviation criteria. It exports a</span>
+0008 <span class="comment">% plot, in which each row of subplots represent a single deciamtion stage</span>
+0009 <span class="comment">% while the total number of subplot rows represent the total number of</span>
+0010 <span class="comment">% decimation stages. In each row there are two subplots, the first subplot</span>
+0011 <span class="comment">% represents the deviation in filter coefficeints while the second one</span>
+0012 <span class="comment">% represents the filter response before and after optimization.</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">%   filter_coefficients:    Matrix of filter coefficients exported from 'decimation_filters' function,</span>
+0015 <span class="comment">%                           which represents the coefficients at each stage</span>
+0016 <span class="comment">%   filter_lengths:         Vector of filter lengths exported from 'decimation_filters' function, which</span>
+0017 <span class="comment">%                           represents the filter length at each stage</span>
+0018 <span class="comment">%   Fs:                     Sampling frequency</span>
+0019 <span class="comment">%   K:                      Number of decimation stages</span>
+0020 <span class="comment">%   Q:                      Quantization bit width</span>
+0021 <span class="comment">%   deviation_value:        Any arbitrary value for the accepted value of</span>
+0022 <span class="comment">%                           deviation factor between coefficient and its rounded value, i.e.</span>
+0023 <span class="comment">%                           coeff           = [53 67 98 28]</span>
+0024 <span class="comment">%                           rounded_coeff   = [48 64 96 32]</span>
+0025 <span class="comment">%                           deviation       = [5 3 2 4]</span>
+0026 <span class="comment">%                           if the deviation_value = 3, then only two factor will be rounded,</span>
+0027 <span class="comment">%                           coeff(2) and coeff(3)</span>
+0028 
+0029 color = [<span class="string">'b'</span>, <span class="string">'m'</span>, <span class="string">'r'</span>, <span class="string">'g'</span>, <span class="string">'k'</span>, <span class="string">'c'</span>, <span class="string">'y'</span>, <span class="string">'d'</span>];
+0030 
+0031 <span class="keyword">if</span> K==2,
+0032     p = [[1 2];[3 4]];
+0033 <span class="keyword">elseif</span> K == 3,
+0034     p = [[1 2];[3 4];[5 6]];
+0035 <span class="keyword">elseif</span> K == 4,
+0036     p = [[1 2];[3 4];[5 6];[7 8]];
+0037 <span class="keyword">else</span>
+0038     fprintf(<span class="string">'This is not a suitable number of decimation stages'</span>);
+0039 <span class="keyword">end</span>    
+0040 
+0041 FIG = figure(<span class="string">'Name'</span>, <span class="string">'Test Deviation Effect'</span>, <span class="string">'NumberTitle'</span> , <span class="string">'off'</span>);
+0042 <span class="keyword">for</span> i = 1 : K,
+0043     [deviation_in_coeff(i,:) norm_coeff(i,:) mixed_coeff(i,:) count(i,:)] = <a href="OptiMixedCoeff.html" class="code" title="function [deviation_in_coeff norm_coeff mixed_coeff count] = OptiMixedCoeff(coeff, Q, Nb, deviation_value)">OptiMixedCoeff</a>(filter_coefficients(i,:), Q(i), Nb, deviation_value);
+0044 
+0045     subplot(K,2,p(i));
+0046     plot(deviation_in_coeff(i,1:filter_lengths(i)));
+0047     grid on
+0048     xlabel(<span class="string">'Filter Coefficients'</span>);
+0049     title([<span class="string">'Deviation in Coefficients for Stage - '</span> num2str(i)]);
+0050 
+0051     subplot(K,2,p(i+K));
+0052     filters = [<a href="DenormalizeCoeff.html" class="code" title="function dcoeff = DenormalizeCoeff(coeff)">DenormalizeCoeff</a>(norm_coeff(i,1:filter_lengths(i))); <a href="DenormalizeCoeff.html" class="code" title="function dcoeff = DenormalizeCoeff(coeff)">DenormalizeCoeff</a>(mixed_coeff(i,1:filter_lengths(i)))];
+0053     <span class="keyword">for</span> j = 1:2,
+0054         [H F]=freqz(filters(j,:), [1], 2^10, Fs);
+0055         Mag = 20*log10(abs(H));
+0056         plot(F, Mag, color(j));
+0057         hold on
+0058         grid on
+0059         xlabel(<span class="string">'Frequency'</span>);
+0060         ylabel(<span class="string">'Magnitude'</span>);
+0061         title([<span class="string">'Filter Response for Stage - '</span>, num2str(i)]);
+0062         legend(<span class="string">'Normalized Coeff.'</span>, <span class="string">'Mixed Coeff.'</span>);
+0063     <span class="keyword">end</span>    
+0064 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Tue 17-Apr-2012 15:26:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of OptiMixedCoeff</title>
+  <meta name="keywords" content="OptiMixedCoeff">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- # aFunctions -->
+<h1>OptiMixedCoeff
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [deviation_in_coeff norm_coeff mixed_coeff count] = OptiMixedCoeff(coeff, Q, Nb, deviation_value) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">
+ [deviation_in_coeff norm_coeff mixed_coeff count] = OptiMixedCoeff(coeff, Q, deviation_value)
+
+ This function exports the mixed coefficients vector due to acceptable
+ deviation value. The mixed vector holds coefficients rounded to SPT and
+ NPT and normal normalized coefficients. How it works:
+ If the deviation of the coeff. is less than or equal the deviation value,
+ the coeff. will be rounded to the value having the smallest deviation,
+ i.e.
+ coeff. = 53 -&gt; SPT = 64, NPT = 48
+ 64 - 53 = 11, while 53 - 48 = 5
+ so the coeff. will be rounded to 48 not 64</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="IndexOfMinValue.html" class="code" title="function index = IndexOfMinValue(x)">IndexOfMinValue</a>	</li><li><a href="NPT.html" class="code" title="function out = NPT(in, Nb, n)">NPT</a>	out = NPT(in, N, n)</li><li><a href="NormalizedCoeff.html" class="code" title="function ncoeff = NormalizedCoeff(coeff, n, c)">NormalizedCoeff</a>	ncoeff = NormalizedCoeff(coeff, n, c)</li><li><a href="SPT.html" class="code" title="function y = SPT(x)">SPT</a>	</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="EstimateOptiDeviation.html" class="code" title="function EstimateOptiDeviation(filter_coefficients, filter_lengths, Fs, K, Q, Nb, deviation_value)">EstimateOptiDeviation</a>	</li><li><a href="OptiMixedCoeffDeviation.html" class="code" title="function [mixed_coeff_matrix count] = OptiMixedCoeffDeviation(coeff, Q, Nb, deviation_values)">OptiMixedCoeffDeviation</a>	</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [deviation_in_coeff norm_coeff mixed_coeff count] = OptiMixedCoeff(coeff, Q, Nb, deviation_value)</a>
+0002 
+0003 <span class="comment">%</span>
+0004 <span class="comment">% [deviation_in_coeff norm_coeff mixed_coeff count] = OptiMixedCoeff(coeff, Q, deviation_value)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% This function exports the mixed coefficients vector due to acceptable</span>
+0007 <span class="comment">% deviation value. The mixed vector holds coefficients rounded to SPT and</span>
+0008 <span class="comment">% NPT and normal normalized coefficients. How it works:</span>
+0009 <span class="comment">% If the deviation of the coeff. is less than or equal the deviation value,</span>
+0010 <span class="comment">% the coeff. will be rounded to the value having the smallest deviation,</span>
+0011 <span class="comment">% i.e.</span>
+0012 <span class="comment">% coeff. = 53 -&gt; SPT = 64, NPT = 48</span>
+0013 <span class="comment">% 64 - 53 = 11, while 53 - 48 = 5</span>
+0014 <span class="comment">% so the coeff. will be rounded to 48 not 64</span>
+0015 <span class="comment">%</span>
+0016 
+0017 count = 0;
+0018 
+0019 norm_coeff = <a href="NormalizedCoeff.html" class="code" title="function ncoeff = NormalizedCoeff(coeff, n, c)">NormalizedCoeff</a>(coeff, Q);
+0020 spt_coeff = <a href="SPT.html" class="code" title="function y = SPT(x)">SPT</a>(norm_coeff);
+0021 npt_coeff = <a href="NPT.html" class="code" title="function out = NPT(in, Nb, n)">NPT</a>(norm_coeff, Nb, Q);
+0022 
+0023 dev_spt = abs(norm_coeff - spt_coeff);
+0024 dev_npt = abs(norm_coeff - npt_coeff);
+0025 
+0026 <span class="keyword">for</span> i = 1 : length(coeff),
+0027     tmp_dev     = [dev_spt(i) dev_npt(i)];
+0028     tmp_coeff   = [spt_coeff(i) npt_coeff(i)];
+0029     <span class="keyword">if</span> (tmp_dev(1) &lt;= deviation_value &amp; tmp_dev(2) &lt;= deviation_value),
+0030         <span class="keyword">if</span> min(tmp_dev),
+0031             mixed_coeff(i) = tmp_coeff(<a href="IndexOfMinValue.html" class="code" title="function index = IndexOfMinValue(x)">IndexOfMinValue</a>(tmp_coeff));
+0032             deviation_in_coeff(i) = min(tmp_dev);
+0033             count = count + 1;
+0034         <span class="keyword">else</span>
+0035             mixed_coeff(i) = norm_coeff(i);
+0036             deviation_in_coeff(i) = 0;
+0037         <span class="keyword">end</span>
+0038     <span class="keyword">else</span>
+0039         mixed_coeff(i) = norm_coeff(i);
+0040         deviation_in_coeff(i) = 0;
+0041     <span class="keyword">end</span>
+0042 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Tue 17-Apr-2012 15:26:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

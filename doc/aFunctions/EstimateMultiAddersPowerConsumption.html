@@ -1,0 +1,616 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of EstimateMultiAddersPowerConsumption</title>
+  <meta name="keywords" content="EstimateMultiAddersPowerConsumption">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- # aFunctions -->
+<h1>EstimateMultiAddersPowerConsumption
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [MultiAdderData Power] = EstimateMultiAddersPowerConsumption(filter_coefficients,filter_lengths,K,M,Wi,MultType,PlotEachStage) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">
+ [MultiAdderData Power] = EstimateMultiAddersPowerConsumption(filter_coefficients,filter_lengths,K,M,Wi,MultType)
+
+ This function estimates the number of fulladders for the parallel
+ multi-adder tree for the transposed FIR polyphase decimator structures.
+
+   filter_coefficients:    Filter coefficients in each decimation stage
+   filter_lengths:         Lengths of decimation filters for each stage
+   K:                      Number of decimation stages
+   M:                      Deciamtion factor at each decimation stage
+   Wi:                     Input bit width at each decimation stage
+   MultType:               Multipliers types in each decimation stage,
+                           whether 'USigned' or 'Signed '
+   PlotEachStage:          Flag to plot the power conumption for each
+                           indivdual stage
+
+   MultiAdderData:         Internal distribution of adder trees and busses
+   Power:                  Estimated power, which also reflects the number
+                           of gates used by the MOA</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="PPDMatrix.html" class="code" title="function matrix = PPDMatrix(coeff, M)">PPDMatrix</a>	</li><li><a href="VectorWithoutZeros.html" class="code" title="function V = VectorWithoutZeros(Vector)">VectorWithoutZeros</a>	</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function [Power Adders Buses AddersList PolyPhaseMatrix] = EstimateMultiAdders(Coefficients, M, Wi, MultType)</a></li><li><a href="#_sub2" class="code">function MultUpperLimits = MultiplierUpperLimits(Wi, Coefficients, MultType)</a></li><li><a href="#_sub3" class="code">function MultUpperLimit = MultiplierUpperLimit(Wi,Coefficient, MultType)</a></li><li><a href="#_sub4" class="code">function MultLowerLimits = MultiplierLowerLimits(Wi, Coefficients, MultType)</a></li><li><a href="#_sub5" class="code">function MultLowerLimit = MultiplierLowerLimit(Wi,Coefficient, MultType)</a></li><li><a href="#_sub6" class="code">function MALimits = MultiAdderLimits(MultLimits, M)</a></li><li><a href="#_sub7" class="code">function Bus = ExcludeZeroBuses(PolyPhaseMatrix)</a></li><li><a href="#_sub8" class="code">function [AdderElement Adders Buses] = ParallelMultiAdderTree(MA_InputLimits)</a></li><li><a href="#_sub9" class="code">function FlagHB = CheckForHBFilters(x)</a></li><li><a href="#_sub10" class="code">function w = Width(Coefficient)</a></li><li><a href="#_sub11" class="code">function W = MaxWidth(A, B)</a></li><li><a href="#_sub12" class="code">function W = MaxBusWidth(A, B)</a></li><li><a href="#_sub13" class="code">function y = LOG2(x)</a></li><li><a href="#_sub14" class="code">function V = VectorWithoutZeros(Vector)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [MultiAdderData Power] = EstimateMultiAddersPowerConsumption(filter_coefficients,filter_lengths,K,M,Wi,MultType,PlotEachStage)</a>
+0002 
+0003 <span class="comment">%</span>
+0004 <span class="comment">% [MultiAdderData Power] = EstimateMultiAddersPowerConsumption(filter_coefficients,filter_lengths,K,M,Wi,MultType)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% This function estimates the number of fulladders for the parallel</span>
+0007 <span class="comment">% multi-adder tree for the transposed FIR polyphase decimator structures.</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">%   filter_coefficients:    Filter coefficients in each decimation stage</span>
+0010 <span class="comment">%   filter_lengths:         Lengths of decimation filters for each stage</span>
+0011 <span class="comment">%   K:                      Number of decimation stages</span>
+0012 <span class="comment">%   M:                      Deciamtion factor at each decimation stage</span>
+0013 <span class="comment">%   Wi:                     Input bit width at each decimation stage</span>
+0014 <span class="comment">%   MultType:               Multipliers types in each decimation stage,</span>
+0015 <span class="comment">%                           whether 'USigned' or 'Signed '</span>
+0016 <span class="comment">%   PlotEachStage:          Flag to plot the power conumption for each</span>
+0017 <span class="comment">%                           indivdual stage</span>
+0018 <span class="comment">%</span>
+0019 <span class="comment">%   MultiAdderData:         Internal distribution of adder trees and busses</span>
+0020 <span class="comment">%   Power:                  Estimated power, which also reflects the number</span>
+0021 <span class="comment">%                           of gates used by the MOA</span>
+0022 
+0023 MatrixSize = [];
+0024 <span class="keyword">for</span> i = 1 :K,
+0025     MatrixSize(i) = round(filter_lengths(i)/M(i));
+0026 <span class="keyword">end</span>
+0027 
+0028 MultiAdderInfos = struct(<span class="string">'Power'</span>,[],<span class="string">'Adders'</span>,[],<span class="string">'Buses'</span>,[],<span class="string">'AddersList'</span>,[],<span class="string">'PolyPhaseMatrix'</span>,[]);
+0029 
+0030 <span class="keyword">for</span> i = 1 : K,
+0031     MultiAdderData(i) = MultiAdderInfos;
+0032 <span class="keyword">end</span>
+0033     
+0034 <span class="keyword">for</span> i = 1 : K,
+0035     [MultiAdderData(i).Power MultiAdderData(i).Adders MultiAdderData(i).Buses MultiAdderData(i).AddersList MultiAdderData(i).PolyPhaseMatrix] = <a href="#_sub1" class="code" title="subfunction [Power Adders Buses AddersList PolyPhaseMatrix] = EstimateMultiAdders(Coefficients, M, Wi, MultType)">EstimateMultiAdders</a>(filter_coefficients(i,1:filter_lengths(i)), M(i), Wi(i), MultType(i)); 
+0036 <span class="keyword">end</span>
+0037 
+0038 <span class="keyword">for</span> i = 1 : K,
+0039     PowerMatrixSize(i,:) = size(MultiAdderData(1,i).Power);
+0040 <span class="keyword">end</span>
+0041 
+0042 MaxSize = max(max(PowerMatrixSize));
+0043 
+0044 Power = zeros(K,MaxSize);
+0045 
+0046 <span class="keyword">for</span> i = 1 : K,
+0047     Power(i,1:PowerMatrixSize(i,2)) = MultiAdderData(1,i).Power;
+0048     <span class="keyword">if</span> PlotEachStage == 1,
+0049         FIG = figure(<span class="string">'Name'</span>, <span class="string">'Power Consumption in Adders'</span>, <span class="string">'NumberTitle'</span> , <span class="string">'off'</span>);
+0050         bar(Power(i,1:PowerMatrixSize(i,2)))
+0051     <span class="keyword">end</span>
+0052 <span class="keyword">end</span>
+0053 
+0054 FIG = figure(<span class="string">'Name'</span>, <span class="string">'Power Consumption in Stages'</span>, <span class="string">'NumberTitle'</span> , <span class="string">'off'</span>);
+0055 <span class="keyword">for</span> i = 1 : K,
+0056     bar(i, sum(Power(i,:)),0.6);
+0057     hold on
+0058 
+0059 <span class="keyword">end</span>
+0060 ylabel(<span class="string">'Power Consumption - Metric'</span>)
+0061 xlabel(<span class="string">'Stages'</span>)
+0062 set(gca, <span class="string">'XTick'</span>, [1:K]);
+0063 
+0064 
+0065 <span class="comment">%%%%%%%%%%%%%%%</span>
+0066 <span class="comment">% Subfunction %</span>
+0067 <span class="comment">%%%%%%%%%%%%%%%</span>
+0068 <a name="_sub1" href="#_subfunctions" class="code">function [Power Adders Buses AddersList PolyPhaseMatrix] = EstimateMultiAdders(Coefficients, M, Wi, MultType)</a>
+0069 
+0070 <span class="comment">% [Power Adders Buses AddersList] = EstimateMultiAdders(Coefficients, M, Wi, MultType)</span>
+0071 <span class="comment">% This function to estimate the total number of adders in multiadder trees</span>
+0072 <span class="comment">% for a polyphase FIR filter.</span>
+0073 <span class="comment">%   Coefficients:   Filter coefficients of the stage</span>
+0074 <span class="comment">%   M:              Decimation factor of the stage</span>
+0075 <span class="comment">%   Wi:             Input bit width of the stage</span>
+0076 <span class="comment">%   MultType:       The input type of the stage, wehther 'Signed ' or 'USigned'</span>
+0077 <span class="comment">%</span>
+0078 
+0079 <span class="comment">% Multipliers output upper limits</span>
+0080 MultUpperLimits = <a href="#_sub2" class="code" title="subfunction MultUpperLimits = MultiplierUpperLimits(Wi, Coefficients, MultType)">MultiplierUpperLimits</a>(Wi, Coefficients, MultType);
+0081 <span class="comment">% Multipliers output lower limits</span>
+0082 MultLowerLimits = <a href="#_sub4" class="code" title="subfunction MultLowerLimits = MultiplierLowerLimits(Wi, Coefficients, MultType)">MultiplierLowerLimits</a>(Wi, Coefficients, MultType);
+0083 
+0084 <span class="comment">% Multipliers\Coefficients in a polyphase matirx format</span>
+0085 PolyPhaseMatrix = <a href="PPDMatrix.html" class="code" title="function matrix = PPDMatrix(coeff, M)">PPDMatrix</a>(Coefficients, M);
+0086 <span class="comment">% Multipliers\Coefficients upper limits in a polyphase matirx format</span>
+0087 PolyPhaseUpperMatrix = <a href="PPDMatrix.html" class="code" title="function matrix = PPDMatrix(coeff, M)">PPDMatrix</a>(MultUpperLimits,M);
+0088 <span class="comment">% Multipliers\Coefficients lower limits in a polyphase matirx format</span>
+0089 PolyPhaseLowerMatrix = <a href="PPDMatrix.html" class="code" title="function matrix = PPDMatrix(coeff, M)">PPDMatrix</a>(MultLowerLimits,M);
+0090 
+0091 <span class="comment">% Multiadders input upper limits</span>
+0092 MAUpperLimits = <a href="#_sub6" class="code" title="subfunction MALimits = MultiAdderLimits(MultLimits, M)">MultiAdderLimits</a>(MultUpperLimits, M);
+0093 <span class="comment">% Multiadders input lower limits</span>
+0094 MALowerLimits = <a href="#_sub6" class="code" title="subfunction MALimits = MultiAdderLimits(MultLimits, M)">MultiAdderLimits</a>(MultLowerLimits, M);
+0095 
+0096 <span class="comment">% The size of the polyphase matrix;</span>
+0097 <span class="comment">% rows      = M</span>
+0098 <span class="comment">% columns   = number of multiadders</span>
+0099 [rows columns] = size(PolyPhaseMatrix);
+0100 NumberOfMultiAdders = columns;
+0101 NumberOfInputsPerMultiAdder = <a href="#_sub7" class="code" title="subfunction Bus = ExcludeZeroBuses(PolyPhaseMatrix)">ExcludeZeroBuses</a>(PolyPhaseMatrix); <span class="comment">%[rows (rows+1)*ones(1,columns)];</span>
+0102 
+0103 <span class="comment">% Format the multiplier outputs in an appropriate format for multiadder</span>
+0104 <span class="comment">% inputs</span>
+0105 MAT = struct(<span class="string">'MAlim'</span>, []);
+0106 <span class="keyword">for</span> i = 1 : columns,
+0107     <span class="keyword">if</span> i == 1,
+0108         <span class="keyword">for</span> j = 1 : M,
+0109             <span class="keyword">if</span> PolyPhaseMatrix(j,i)~=0,
+0110                 MAT(j,i).MAlim = [PolyPhaseLowerMatrix(j,i) PolyPhaseUpperMatrix(j,i)];
+0111                 BI(j) = j; 
+0112                 FirstMABusesIndex = <a href="VectorWithoutZeros.html" class="code" title="function V = VectorWithoutZeros(Vector)">VectorWithoutZeros</a>(BI);                 
+0113             <span class="keyword">end</span>
+0114         <span class="keyword">end</span>
+0115     <span class="keyword">else</span>
+0116         <span class="keyword">for</span> j = 1 : M+1,
+0117             <span class="keyword">if</span> j == M+1,
+0118                 MAT(j,i).MAlim = [MALowerLimits(i-1) MAUpperLimits(i-1)];
+0119             <span class="keyword">else</span>
+0120                 MAT(j,i).MAlim = [PolyPhaseLowerMatrix(j,i) PolyPhaseUpperMatrix(j,i)];
+0121             <span class="keyword">end</span>
+0122         <span class="keyword">end</span>
+0123     <span class="keyword">end</span>
+0124 <span class="keyword">end</span>
+0125 
+0126 <span class="comment">%HB</span>
+0127 <span class="comment">% FlagHB = CheckForHBFilters(Coefficients);</span>
+0128 <span class="comment">% if M==2 &amp;&amp; FlagHB==1,</span>
+0129 <span class="comment">%     MAT = [MAT(1,:); flipud(MAT(2:3,:))];</span>
+0130 <span class="comment">%     %AdderElement    = struct('aDepth', cell(28,2), 'bDepth', [], 'oDepth', [], 'aWidth', [], 'bWidth', [], 'oWidth', [], 'Number', []);</span>
+0131 <span class="comment">% end</span>
+0132 AdderElement    = struct(<span class="string">'aDepth'</span>, [], <span class="string">'bDepth'</span>, [], <span class="string">'oDepth'</span>, [], <span class="string">'aWidth'</span>, [], <span class="string">'bWidth'</span>, [], <span class="string">'oWidth'</span>, [], <span class="string">'Number'</span>, []);
+0133 
+0134 <span class="comment">% Get the multiadder info's, such as;</span>
+0135 <span class="comment">% Adders depth, organization in each depth, recoreds</span>
+0136 Adders = zeros(columns,<a href="#_sub13" class="code" title="subfunction y = LOG2(x)">LOG2</a>(rows+1));
+0137 Buses  = zeros(columns,<a href="#_sub13" class="code" title="subfunction y = LOG2(x)">LOG2</a>(rows+1));
+0138 <span class="keyword">for</span> i = NumberOfMultiAdders : -1 : 1,
+0139     lim = [];
+0140     <span class="keyword">if</span> i == 1,
+0141        <span class="keyword">if</span> NumberOfInputsPerMultiAdder(i)~=0,
+0142             <span class="keyword">for</span> j = 1 : NumberOfInputsPerMultiAdder(i),
+0143                 lim(j,:)=MAT(FirstMABusesIndex(j),i).MAlim;
+0144             <span class="keyword">end</span>
+0145        <span class="keyword">else</span>
+0146             lim(j,:) = [0 0];
+0147        <span class="keyword">end</span>
+0148         [AdderElement1(i,:) a b] = <a href="#_sub8" class="code" title="subfunction [AdderElement Adders Buses] = ParallelMultiAdderTree(MA_InputLimits)">ParallelMultiAdderTree</a>(lim);
+0149         Adders(i,1:length(a))=a;
+0150         Buses(i,1:length(b))=b;
+0151     <span class="keyword">else</span>
+0152         <span class="keyword">for</span> j = 1 : NumberOfInputsPerMultiAdder(i),
+0153             lim(j,:)=MAT(j,i).MAlim;
+0154         <span class="keyword">end</span>
+0155         [a b c] = <a href="#_sub8" class="code" title="subfunction [AdderElement Adders Buses] = ParallelMultiAdderTree(MA_InputLimits)">ParallelMultiAdderTree</a>(lim);
+0156         AdderElement(i-1,1:length(a))=a;
+0157         Adders(i,1:length(b))=b;
+0158         Buses(i,1:length(c))=c;
+0159         <span class="comment">%[AdderElement(i-1,:) Adders(i,:) Buses(i,:)] = ParallelMultiAdderTree(lim);</span>
+0160     <span class="keyword">end</span>
+0161 <span class="keyword">end</span>
+0162 
+0163 <span class="comment">% Preparing the adders out widths for power estimation</span>
+0164 <span class="keyword">for</span> i = 1 : NumberOfMultiAdders-1,
+0165     <span class="keyword">for</span> j = 1 : NumberOfInputsPerMultiAdder(i+1)-1,
+0166         AddersOutputWidth(i,j) = AdderElement(i,j).oWidth;
+0167     <span class="keyword">end</span>
+0168 <span class="keyword">end</span>
+0169 
+0170 <span class="keyword">for</span> i = 1 : length(AdderElement1),
+0171     FirstAdderOutputWidth(i) = AdderElement1(i).oWidth;
+0172 <span class="keyword">end</span>
+0173 
+0174 <span class="keyword">for</span> i = 1 : NumberOfMultiAdders,
+0175     <span class="keyword">if</span> i == 1,
+0176         Power(i) = sum(FirstAdderOutputWidth);
+0177     <span class="keyword">else</span>
+0178         Power(i) = sum(AddersOutputWidth(i-1,:));
+0179     <span class="keyword">end</span>
+0180 <span class="keyword">end</span>
+0181 
+0182 <span class="comment">% Just to export the multiadder tree in a readable format</span>
+0183 EmptyAdderElement = struct(<span class="string">'aDepth'</span>, [], <span class="string">'bDepth'</span>, [], <span class="string">'oDepth'</span>, [], <span class="string">'aWidth'</span>, [], <span class="string">'bWidth'</span>, [], <span class="string">'oWidth'</span>, [], <span class="string">'Number'</span>, []);
+0184 <span class="keyword">for</span> i = 1 : size(AdderElement,2)-size(AdderElement1,2),
+0185     Filler(i) = EmptyAdderElement;
+0186 <span class="keyword">end</span>
+0187 
+0188 <span class="keyword">if</span> FirstAdderOutputWidth == 0,
+0189     <span class="keyword">for</span> i = 1 : NumberOfMultiAdders-1,
+0190         AddersList(i,:) = AdderElement(i,:);
+0191     <span class="keyword">end</span>
+0192 <span class="keyword">else</span>
+0193     <span class="keyword">for</span> i = 1 : NumberOfMultiAdders,
+0194         <span class="keyword">if</span> i == 1,
+0195             AddersList(i,:) = [AdderElement1 Filler];
+0196         <span class="keyword">else</span>
+0197             AddersList(i,:) = AdderElement(i-1,:);
+0198         <span class="keyword">end</span>
+0199     <span class="keyword">end</span>
+0200 <span class="keyword">end</span>
+0201 
+0202 <span class="comment">%%%%%%%%%%%%%%%</span>
+0203 <span class="comment">% Subfunction %</span>
+0204 <span class="comment">%%%%%%%%%%%%%%%</span>
+0205 <a name="_sub2" href="#_subfunctions" class="code">function MultUpperLimits = MultiplierUpperLimits(Wi, Coefficients, MultType)</a>
+0206 
+0207 <span class="comment">% MultUpperLimits = MultiplierUpperLimits(Wi, Coefficients, MultType)</span>
+0208 <span class="comment">% This function estimate the multiplier upper limit by simply multiplying</span>
+0209 <span class="comment">% the constant by the maximum value for the input bitwidth.</span>
+0210 <span class="comment">%</span>
+0211 <span class="comment">%   Wi:             Input bitwidth</span>
+0212 <span class="comment">%   Coefficient:    Constant or single filter coefficient</span>
+0213 <span class="comment">%   MultType:       Input type, wether</span>
+0214 <span class="comment">%                   Signed      -&gt; 'Signed '</span>
+0215 <span class="comment">%                   Unsigned    -&gt; 'USigned'</span>
+0216 <span class="comment">%</span>
+0217 
+0218 <span class="keyword">for</span> i = 1 : length(Coefficients),
+0219     MultUpperLimits(i) = <a href="#_sub3" class="code" title="subfunction MultUpperLimit = MultiplierUpperLimit(Wi,Coefficient, MultType)">MultiplierUpperLimit</a>(Wi,Coefficients(i), MultType);
+0220 <span class="keyword">end</span>
+0221 
+0222 <span class="comment">%%%%%%%%%%%%%%%</span>
+0223 <span class="comment">% Subfunction %</span>
+0224 <span class="comment">%%%%%%%%%%%%%%%</span>
+0225 <a name="_sub3" href="#_subfunctions" class="code">function MultUpperLimit = MultiplierUpperLimit(Wi,Coefficient, MultType)</a>
+0226 
+0227 <span class="keyword">if</span> strcmp(MultType, <span class="string">'Signed '</span>), <span class="comment">%MultType == 'Signed ',</span>
+0228     <span class="keyword">if</span> Coefficient &gt; 0,
+0229         MultUpperLimit = (2^(Wi-1)-1)*Coefficient;
+0230     <span class="keyword">else</span>
+0231         MultUpperLimit = (-2^(Wi-1))*Coefficient;
+0232     <span class="keyword">end</span>
+0233 <span class="keyword">else</span>
+0234     <span class="keyword">if</span> Coefficient &gt; 0,
+0235         MultUpperLimit = (2^(Wi)-1)*Coefficient;
+0236     <span class="keyword">else</span>
+0237         MultUpperLimit = 0;
+0238     <span class="keyword">end</span>
+0239 <span class="keyword">end</span>
+0240 
+0241 <span class="comment">%%%%%%%%%%%%%%%</span>
+0242 <span class="comment">% Subfunction %</span>
+0243 <span class="comment">%%%%%%%%%%%%%%%</span>
+0244 <a name="_sub4" href="#_subfunctions" class="code">function MultLowerLimits = MultiplierLowerLimits(Wi, Coefficients, MultType)</a>
+0245 
+0246 <span class="comment">% MultLowerLimits = MultiplierLowerLimits(Wi, Coefficients, MultType)</span>
+0247 <span class="comment">% This function estimate the multiplier lower limit by simply multiplying</span>
+0248 <span class="comment">% the constant by the maximum value for the input bitwidth.</span>
+0249 <span class="comment">%</span>
+0250 <span class="comment">%   Wi:             Input bitwidth</span>
+0251 <span class="comment">%   Coefficient:    Constant or single filter coefficient</span>
+0252 <span class="comment">%   MultType:       Input type, wether</span>
+0253 <span class="comment">%                   Signed      -&gt; 'Signed '</span>
+0254 <span class="comment">%                   Unsigned    -&gt; 'USigned'</span>
+0255 <span class="comment">%</span>
+0256 
+0257 <span class="keyword">for</span> i = 1 : length(Coefficients),
+0258     MultLowerLimits(i) = <a href="#_sub5" class="code" title="subfunction MultLowerLimit = MultiplierLowerLimit(Wi,Coefficient, MultType)">MultiplierLowerLimit</a>(Wi,Coefficients(i), MultType);
+0259 <span class="keyword">end</span>
+0260 
+0261 <span class="comment">%%%%%%%%%%%%%%%</span>
+0262 <span class="comment">% Subfunction %</span>
+0263 <span class="comment">%%%%%%%%%%%%%%%</span>
+0264 <a name="_sub5" href="#_subfunctions" class="code">function MultLowerLimit = MultiplierLowerLimit(Wi,Coefficient, MultType)</a>
+0265 
+0266 <span class="keyword">if</span> strcmp(MultType, <span class="string">'Signed '</span>), <span class="comment">%MultType == 'Signed ',</span>
+0267     <span class="keyword">if</span> Coefficient &gt; 0,
+0268         MultLowerLimit = (-2^(Wi-1))*Coefficient;
+0269     <span class="keyword">else</span>
+0270         MultLowerLimit = (2^(Wi-1)-1)*Coefficient;
+0271     <span class="keyword">end</span>
+0272 <span class="keyword">else</span>
+0273     <span class="keyword">if</span> Coefficient &gt; 0,
+0274         MultLowerLimit = 0;
+0275     <span class="keyword">else</span>
+0276         MultLowerLimit = (2^(Wi)-1)*Coefficient;
+0277     <span class="keyword">end</span>
+0278 <span class="keyword">end</span>
+0279 
+0280 <span class="comment">%%%%%%%%%%%%%%%</span>
+0281 <span class="comment">% Subfunction %</span>
+0282 <span class="comment">%%%%%%%%%%%%%%%</span>
+0283 <a name="_sub6" href="#_subfunctions" class="code">function MALimits = MultiAdderLimits(MultLimits, M)</a>
+0284 
+0285 <span class="comment">% MALimits = MultiAdderLimits(MultLimits, M)</span>
+0286 <span class="comment">% This function estimate the input limits for parallel multi-adder tree.</span>
+0287 <span class="comment">%</span>
+0288 <span class="comment">%   MultLimits: Multiplier output limits, upper or lower</span>
+0289 <span class="comment">%   M:          Decimation factor for the stage</span>
+0290 <span class="comment">%</span>
+0291 Matrix = <a href="PPDMatrix.html" class="code" title="function matrix = PPDMatrix(coeff, M)">PPDMatrix</a>(MultLimits, M);
+0292 
+0293 <span class="keyword">for</span> i = 1 : size(Matrix, 2),
+0294     <span class="keyword">if</span> i == 1,
+0295         MALimits(i) = sum(Matrix(:,i));
+0296     <span class="keyword">else</span>
+0297         MALimits(i) = sum(Matrix(:,i))+MALimits(i-1);
+0298     <span class="keyword">end</span>
+0299 <span class="keyword">end</span>
+0300 
+0301 <span class="comment">%%%%%%%%%%%%%%%</span>
+0302 <span class="comment">% Subfunction %</span>
+0303 <span class="comment">%%%%%%%%%%%%%%%</span>
+0304 <a name="_sub7" href="#_subfunctions" class="code">function Bus = ExcludeZeroBuses(PolyPhaseMatrix)</a>
+0305 
+0306 [rows columns] = size(PolyPhaseMatrix);
+0307 
+0308 <span class="keyword">for</span> i = 1 : columns,
+0309     z = 1;
+0310     <span class="keyword">for</span> j = 1 : rows,
+0311         <span class="keyword">if</span> PolyPhaseMatrix(j,i)==0,
+0312             Nothing = 1;
+0313         <span class="keyword">else</span>
+0314             B(z,i) = 1;
+0315             z = z + 1;
+0316         <span class="keyword">end</span>
+0317     <span class="keyword">end</span>
+0318 <span class="keyword">end</span>
+0319 
+0320 <span class="keyword">for</span> i = 1 : columns,
+0321     <span class="keyword">if</span> i == 1,
+0322         Bus(i) = sum(B(:,i));
+0323     <span class="keyword">else</span>
+0324         Bus(i) = sum(B(:,i))+1;
+0325     <span class="keyword">end</span>
+0326 <span class="keyword">end</span>
+0327 
+0328 <span class="comment">%%%%%%%%%%%%%%%</span>
+0329 <span class="comment">% Subfunction %</span>
+0330 <span class="comment">%%%%%%%%%%%%%%%</span>
+0331 <a name="_sub8" href="#_subfunctions" class="code">function [AdderElement Adders Buses] = ParallelMultiAdderTree(MA_InputLimits)</a>
+0332 
+0333 <span class="comment">% Defining structured variable for bus and adder elements</span>
+0334 BusElement      = struct(<span class="string">'Depth'</span>, [], <span class="string">'UpperLimit'</span>, [], <span class="string">'LowerLimit'</span>, [], <span class="string">'Width'</span>, [], <span class="string">'Number'</span>, []);
+0335 AdderElement    = struct(<span class="string">'aDepth'</span>, [], <span class="string">'bDepth'</span>, [], <span class="string">'oDepth'</span>, [], <span class="string">'aWidth'</span>, [], <span class="string">'bWidth'</span>, [], <span class="string">'oWidth'</span>, [], <span class="string">'Number'</span>, []);
+0336 
+0337     [r c] = size(MA_InputLimits);
+0338     
+0339     <span class="comment">% Total number of adders in the multi-adder tree</span>
+0340     NumberOfAdders = r-1;
+0341 
+0342     <span class="comment">% Maximum depth of the multi-adder tree</span>
+0343     AddersDepth = <a href="#_sub13" class="code" title="subfunction y = LOG2(x)">LOG2</a>(r);
+0344 
+0345     <span class="comment">% Number of adders in each single depth</span>
+0346     Wi = r;
+0347     <span class="keyword">if</span> Wi == 1,
+0348         Adders = 0;
+0349     <span class="keyword">else</span>
+0350         <span class="keyword">for</span> i = 1 : AddersDepth,
+0351             <span class="keyword">if</span> i == AddersDepth,
+0352                 Adders(i) = 1;
+0353             <span class="keyword">else</span>
+0354                 <span class="keyword">if</span> mod(Wi,2) == 0,
+0355                     Wi = Wi/2;
+0356                     Adders(i) = Wi;
+0357                 <span class="keyword">else</span>
+0358                     ExtraAdder = rem(Wi,2);
+0359                     Wi = (Wi-1)/2;
+0360                     Adders(i) = Wi;
+0361                     <span class="keyword">if</span> ExtraAdder == 1,
+0362                         Wi = Wi + 1;
+0363                     <span class="keyword">end</span>
+0364                 <span class="keyword">end</span>
+0365             <span class="keyword">end</span>
+0366         <span class="keyword">end</span>
+0367     <span class="keyword">end</span>
+0368 
+0369     <span class="comment">% Number of buses in each single depth</span>
+0370     <span class="keyword">if</span> Adders == 0,
+0371         Buses = 1;
+0372     <span class="keyword">else</span>
+0373         <span class="keyword">for</span> i = 1 : length(Adders),
+0374             <span class="keyword">if</span> i == 1,
+0375                 Buses(i) = length(MA_InputLimits);
+0376             <span class="keyword">else</span>
+0377                 Buses(i) = Adders(i-1);
+0378             <span class="keyword">end</span>
+0379         <span class="keyword">end</span>
+0380     <span class="keyword">end</span>
+0381 
+0382     <span class="comment">% Bus elements assignments</span>
+0383     BusIncrement = 1;
+0384     <span class="keyword">for</span> i = 1 : length(Buses), 
+0385         BusIncrement = 1;
+0386         <span class="keyword">for</span> j = 1 : Buses(i),
+0387             <span class="keyword">if</span> i == 1,
+0388                 BusElement(i,j).Depth           = 1;
+0389                 BusElement(i,j).UpperLimit      = MA_InputLimits(j,2);
+0390                 BusElement(i,j).LowerLimit      = MA_InputLimits(j,1);
+0391                 BusElement(i,j).Width           = <a href="#_sub11" class="code" title="subfunction W = MaxWidth(A, B)">MaxWidth</a>(MA_InputLimits(j,2), (-1*MA_InputLimits(j,1)));
+0392                 BusElement(i,j).Number          = i+j;
+0393             <span class="keyword">elseif</span> BusElement(i-1,BusIncrement).Depth == BusElement(i-1,BusIncrement+1).Depth,
+0394                 BusElement(i,j).Depth           = i;
+0395                 BusElement(i,j).UpperLimit      = BusElement(i-1,BusIncrement).UpperLimit + BusElement(i-1,BusIncrement+1).UpperLimit;
+0396                 BusElement(i,j).LowerLimit      = BusElement(i-1,BusIncrement).LowerLimit + BusElement(i-1,BusIncrement+1).LowerLimit;
+0397                 BusElement(i,j).Width           = <a href="#_sub11" class="code" title="subfunction W = MaxWidth(A, B)">MaxWidth</a>((BusElement(i-1,BusIncrement).UpperLimit + BusElement(i-1,BusIncrement+1).UpperLimit), -1*(BusElement(i-1,BusIncrement).LowerLimit + BusElement(i-1,BusIncrement+1).LowerLimit));
+0398                 BusElement(i,j).Number          = i+j;
+0399                 BusIncrement                    = BusIncrement + 2;
+0400             <span class="keyword">else</span>
+0401                 BusElement(i,j).Depth         = i;
+0402                 BusElement(i,j).UpperLimit    = BusElement(i-1,BusIncrement).UpperLimit + BusElement(1,length(MA_InputLimits)).UpperLimit;
+0403                 BusElement(i,j).LowerLimit    = BusElement(i-1,BusIncrement).LowerLimit + BusElement(1,length(MA_InputLimits)).LowerLimit;
+0404                 BusElement(i,j).Width         = <a href="#_sub11" class="code" title="subfunction W = MaxWidth(A, B)">MaxWidth</a>((BusElement(i-1,BusIncrement).UpperLimit + BusElement(1,length(MA_InputLimits)).UpperLimit), -1*(BusElement(i-1,BusIncrement).LowerLimit + BusElement(1,length(MA_InputLimits)).LowerLimit));
+0405                 BusElement(i,j).Number        = i+j;
+0406                 BusIncrement = BusIncrement + 2; 
+0407             <span class="keyword">end</span>
+0408         <span class="keyword">end</span>
+0409     <span class="keyword">end</span>
+0410 
+0411     <span class="comment">% Transforming the bus elements from matrix format to vector format for</span>
+0412     <span class="comment">% easier manuplation</span>
+0413     k = 1;
+0414     <span class="keyword">for</span> i = 1 : length(Buses),
+0415         <span class="keyword">for</span> j = 1 : Buses(i),
+0416             BusesVector(k) = BusElement(i,j);
+0417             k = k + 1;
+0418         <span class="keyword">end</span>    
+0419     <span class="keyword">end</span>
+0420 
+0421     <span class="comment">% Creating the multi-adder tree from the buses elements</span>
+0422     <span class="keyword">if</span> Adders == 0,
+0423         AdderElement(i).aDepth  = 0;
+0424         AdderElement(i).bDepth  = 0;
+0425         AdderElement(i).oDepth  = 0;
+0426         AdderElement(i).aWidth  = 0;
+0427         AdderElement(i).bWidth  = 0;
+0428         AdderElement(i).oWidth  = 0;
+0429         AdderElement(i).Number  = 0;        
+0430 
+0431     <span class="keyword">else</span>
+0432         AdderIndex = 1;
+0433         <span class="keyword">for</span> i = 1 : sum(Adders),
+0434             AdderElement(i).aDepth  = BusesVector(AdderIndex).Depth;
+0435             AdderElement(i).bDepth  = BusesVector(AdderIndex+1).Depth;
+0436             AdderElement(i).oDepth  = max(BusesVector(AdderIndex+1).Depth) + 1;
+0437             AdderElement(i).aWidth  = BusesVector(AdderIndex).Width;
+0438             AdderElement(i).bWidth  = BusesVector(AdderIndex+1).Width;
+0439             AdderElement(i).oWidth  = <a href="#_sub12" class="code" title="subfunction W = MaxBusWidth(A, B)">MaxBusWidth</a>(BusesVector(AdderIndex).Width, BusesVector(AdderIndex+1).Width);
+0440             AdderElement(i).Number  = i;
+0441             AdderIndex              = AdderIndex + 2;
+0442         <span class="keyword">end</span>
+0443     <span class="keyword">end</span>
+0444 
+0445 <span class="comment">%%%%%%%%%%%%%%%</span>
+0446 <span class="comment">% Subfunction %</span>
+0447 <span class="comment">%%%%%%%%%%%%%%%</span>
+0448 <a name="_sub9" href="#_subfunctions" class="code">function FlagHB = CheckForHBFilters(x)</a>
+0449 
+0450 <span class="keyword">if</span> mod(length(x),2)==0
+0451     N = length(x)/2;
+0452 <span class="keyword">else</span>
+0453     N = length(x+1)/2;
+0454 <span class="keyword">end</span>
+0455 
+0456 count = 0;
+0457 <span class="keyword">for</span> i = 1 : N,
+0458     <span class="keyword">if</span> x(i) == 0 &amp;&amp; x(i+2) == 0,
+0459         count = count + 1;
+0460     <span class="keyword">end</span>
+0461 <span class="keyword">end</span>
+0462 
+0463 <span class="keyword">if</span> count &gt; 2,
+0464     FlagHB = 1;
+0465 <span class="keyword">else</span>
+0466     FlagHB = 0;
+0467 <span class="keyword">end</span>
+0468 
+0469 <span class="comment">%%%%%%%%%%%%%%%</span>
+0470 <span class="comment">% Subfunction %</span>
+0471 <span class="comment">%%%%%%%%%%%%%%%</span>
+0472 <a name="_sub10" href="#_subfunctions" class="code">function w = Width(Coefficient)</a>
+0473 
+0474 count = 0;
+0475 <span class="keyword">if</span> Coefficient &gt; 0,
+0476     Value = Coefficient;
+0477 <span class="keyword">else</span>
+0478     Value = -1*Coefficient;
+0479 <span class="keyword">end</span>
+0480 
+0481 <span class="keyword">while</span> Value &gt; 1,
+0482     count = count + 1;
+0483     Value = Value/2;
+0484 <span class="keyword">end</span>
+0485 
+0486 w = count + 1;
+0487 
+0488 <span class="comment">%%%%%%%%%%%%%%%</span>
+0489 <span class="comment">% Subfunction %</span>
+0490 <span class="comment">%%%%%%%%%%%%%%%</span>
+0491 <a name="_sub11" href="#_subfunctions" class="code">function W = MaxWidth(A, B)</a>
+0492 
+0493 <span class="keyword">if</span> A == 0 &amp;&amp; B == 0,
+0494     W = 0;
+0495 <span class="keyword">elseif</span> <a href="#_sub10" class="code" title="subfunction w = Width(Coefficient)">Width</a>(A) == <a href="#_sub10" class="code" title="subfunction w = Width(Coefficient)">Width</a>(B),
+0496     W = <a href="#_sub10" class="code" title="subfunction w = Width(Coefficient)">Width</a>(A) + 1;
+0497 <span class="keyword">else</span>
+0498     W = max(<a href="#_sub10" class="code" title="subfunction w = Width(Coefficient)">Width</a>(A), <a href="#_sub10" class="code" title="subfunction w = Width(Coefficient)">Width</a>(B));
+0499 <span class="keyword">end</span>
+0500 
+0501 <span class="comment">%%%%%%%%%%%%%%%</span>
+0502 <span class="comment">% Subfunction %</span>
+0503 <span class="comment">%%%%%%%%%%%%%%%</span>
+0504 <a name="_sub12" href="#_subfunctions" class="code">function W = MaxBusWidth(A, B)</a>
+0505 
+0506 <span class="keyword">if</span> A == 0 &amp;&amp; B == 0,
+0507     W = 0;
+0508 <span class="keyword">elseif</span> abs(A-B) &gt;= 1,
+0509     W = max(A,B);
+0510 <span class="keyword">else</span>
+0511     W = max(A,B) + 1;
+0512 <span class="keyword">end</span>
+0513 
+0514 <span class="comment">%%%%%%%%%%%%%%%</span>
+0515 <span class="comment">% Subfunction %</span>
+0516 <span class="comment">%%%%%%%%%%%%%%%</span>
+0517 <a name="_sub13" href="#_subfunctions" class="code">function y = LOG2(x)</a>
+0518 
+0519  v=x;
+0520  y=0;
+0521  <span class="keyword">while</span> v&gt;1,
+0522      y=y+1;
+0523      v=v/2;
+0524  <span class="keyword">end</span>
+0525  
+0526  <span class="comment">%%%%%%%%%%%%%%%</span>
+0527 <span class="comment">% Subfunction %</span>
+0528 <span class="comment">%%%%%%%%%%%%%%%</span>
+0529  <a name="_sub14" href="#_subfunctions" class="code">function V = VectorWithoutZeros(Vector)</a>
+0530 
+0531 <span class="comment">% V = VectorWithoutZeros(Vector)</span>
+0532 <span class="comment">% This function used to remove and zeros from the input vector to have</span>
+0533 <span class="comment">% vector with only intgers larger than zeros, which can be used as index as</span>
+0534 <span class="comment">% an example.</span>
+0535 <span class="comment">%</span>
+0536 <span class="comment">%   Vector: Input vector holding zeros and intgers.</span>
+0537 <span class="comment">%</span>
+0538 <span class="comment">%   Example:</span>
+0539 <span class="comment">%   Vector  = [0 0 3 0 5]</span>
+0540 <span class="comment">%   V       = [3 5]</span>
+0541 <span class="comment">%</span>
+0542 
+0543 j = 1;
+0544 
+0545 <span class="keyword">for</span> i = 1 : length(Vector),
+0546     <span class="keyword">if</span> Vector(i) ~= 0,
+0547         V(j) = Vector(i);
+0548         j=j+1;
+0549     <span class="keyword">end</span>
+0550 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Tue 17-Apr-2012 15:26:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

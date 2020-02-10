@@ -1,0 +1,150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of LPIBN</title>
+  <meta name="keywords" content="LPIBN">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- # aFunctions -->
+<h1>LPIBN
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [IBN,Sig] = LPIBN(data_vector, Fsignal, Fs, Fb, plot_psd) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">
+ [IBN,Sig] = LPIBN(data_vector, Fsignal, Fs, Fb, plot_psd)
+
+ This function used to setimate the IBN for the input vector of the
+ function
+
+   data_vector: Vector holds the output pattern of the DSM or the Decimator
+   fsignal: Signal frequency
+   Fs: Sampling frequency
+   OSR: Oversampling frequency
+   plot_psd: Optinal flag to plot the PSD of the function input signal or not, 1 -&gt; plot 0 -&gt; don't plot
+
+ This funcion based on the function developed by Maurits Ortmanns
+ 'Maurits.Ortmanns@imtek.de' called 'FileSpektrumAuto_simu.m'</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [IBN,Sig] = LPIBN(data_vector, Fsignal, Fs, Fb, plot_psd)</a>
+0002 
+0003 <span class="comment">%</span>
+0004 <span class="comment">% [IBN,Sig] = LPIBN(data_vector, Fsignal, Fs, Fb, plot_psd)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% This function used to setimate the IBN for the input vector of the</span>
+0007 <span class="comment">% function</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">%   data_vector: Vector holds the output pattern of the DSM or the Decimator</span>
+0010 <span class="comment">%   fsignal: Signal frequency</span>
+0011 <span class="comment">%   Fs: Sampling frequency</span>
+0012 <span class="comment">%   OSR: Oversampling frequency</span>
+0013 <span class="comment">%   plot_psd: Optinal flag to plot the PSD of the function input signal or not, 1 -&gt; plot 0 -&gt; don't plot</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">% This funcion based on the function developed by Maurits Ortmanns</span>
+0016 <span class="comment">% 'Maurits.Ortmanns@imtek.de' called 'FileSpektrumAuto_simu.m'</span>
+0017 <span class="comment">%</span>
+0018 
+0019 <span class="comment">% Turn off the warnign of log of zero</span>
+0020 log10(0);
+0021 [msg, msgid] = lastwarn;
+0022 s = warning(<span class="string">'off'</span>, msgid);
+0023 
+0024 fsig=Fsignal;
+0025 
+0026 amp=data_vector;
+0027 
+0028 N=length(amp);
+0029 power=0;
+0030 <span class="keyword">while</span> N&gt;2^power,
+0031    power=power+1;
+0032 <span class="keyword">end</span>;
+0033 Np=2^(power-1);
+0034 
+0035 W=blackman(Np);
+0036 [ys,f]=psd(amp,Np,Fs,W,[]);
+0037 sp_a=ys*norm(W)^2/sum(W)^2*4;
+0038 sp_psd=ys*norm(W)^2/sum(W)^2/(Fs/Np);
+0039 sp_psd_tmp=sp_psd;
+0040 
+0041 <span class="comment">% Signal peak bin and signal cutoff bin</span>
+0042 fsignr=round(fsig/(Fs/(Np)));
+0043 fstoppnr=round(Fb/(Fs/(Np)));
+0044 
+0045 <span class="comment">% Signal width bins</span>
+0046 n=1;
+0047 vergl=sp_psd_tmp(fsignr);
+0048 <span class="keyword">while</span> (min(sp_psd_tmp((fsignr+n):(fsignr+n+2)))&lt;vergl),
+0049    vergl=sp_psd_tmp(fsignr+n);
+0050    n=n+1;
+0051    <span class="keyword">if</span> n==fsignr,
+0052       n=n-2;
+0053       <span class="keyword">break</span>;
+0054    <span class="keyword">end</span>;
+0055 <span class="keyword">end</span>;
+0056 
+0057 <span class="comment">% Temporary signal without signal</span>
+0058 sp_ersatz_tmp = (sp_psd_tmp(fsignr-(n))+sp_psd_tmp(fsignr+(n)))/2;
+0059 
+0060 <span class="comment">% Removing the signal from the pattern</span>
+0061 <span class="keyword">for</span> i=0:n-1,
+0062     sp_psd_tmp(fsignr-i)=sp_ersatz_tmp;
+0063     sp_psd_tmp(fsignr+i)=sp_ersatz_tmp;
+0064 <span class="keyword">end</span>;
+0065 
+0066 <span class="comment">% The IBN is computed now the achievement of the individual peaks</span>
+0067 sp_psd_bin=sp_psd_tmp*(Fs/Np);              <span class="comment">% Noise power density</span>
+0068 IBN_tmp=0;
+0069 <span class="comment">%startnr=fsignr;</span>
+0070 startnr=1; <span class="comment">% The strat point for calculating the IBN</span>
+0071 IBN_tmp=sum(sp_psd_bin(startnr:(fstoppnr+1)));
+0072 
+0073 <span class="comment">%The signal and the IBN in dB</span>
+0074 Sig=10*log10(sum(sp_psd(fsignr-n:fsignr+n)*(Fs/Np)));
+0075 IBN=10*log10(IBN_tmp);
+0076 
+0077 <span class="comment">%Plot the PSD with and without the signal</span>
+0078 <span class="keyword">if</span> (nargin == 5 &amp; plot_psd == 1),
+0079     figure
+0080     semilogx(f,10*log10(sp_psd),<span class="string">'k-'</span>,f,10*log10(sp_psd_tmp));
+0081     grid on;
+0082     axis auto
+0083     xlabel(<span class="string">'Frequeny- Hz'</span>);
+0084     ylabel(<span class="string">'PSD - dB'</span>)
+0085     title([<span class="string">'PSD IBN='</span>, num2str(IBN),<span class="string">', Sig='</span>, num2str(Sig)]);
+0086 <span class="keyword">end</span>
+0087 
+0088 
+0089 
+0090 
+0091</pre></div>
+<hr><address>Generated on Tue 17-Apr-2012 15:26:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

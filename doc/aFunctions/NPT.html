@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of NPT</title>
+  <meta name="keywords" content="NPT">
+  <meta name="description" content="out = NPT(in, N, n)">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- # aFunctions -->
+<h1>NPT
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>out = NPT(in, N, n)</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function out = NPT(in, Nb, n) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> out = NPT(in, N, n)
+ This function exports the correspondence Signed-Power-of-Two (SPT) value for
+ the input value 'in'.
+
+   in :    Input integer
+   Nb:      Number of ones in for the desired SPT, N belongs to (1, 2, 3) only
+   n:      Quantization bit width for this number</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="SPT.html" class="code" title="function y = SPT(x)">SPT</a>	</li><li><a href="SPTSpace.html" class="code" title="function NSPT_Vector = SPTSpace(Nb, n)">SPTSpace</a>	NSPT_Vector = SPTSpace(Nb, n)</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="FilterCoeffDeviation.html" class="code" title="function [deviation_in_coeff norm_coeff nptcoeff mixed_coeff count] = FilterCoeffDeviation(coeff, Q, N, deviation_value, Fs, plot_deviation, plot_freq)">FilterCoeffDeviation</a>	</li><li><a href="OptiMixedCoeff.html" class="code" title="function [deviation_in_coeff norm_coeff mixed_coeff count] = OptiMixedCoeff(coeff, Q, Nb, deviation_value)">OptiMixedCoeff</a>	</li><li><a href="OptiMixedCoeffSensitvity.html" class="code" title="function [test_filter_coeff_sensitvity count_indices]= OptiMixedCoeffSensitvity(coeff, Q, Sn, Sn_value, N_NPT, Fs)">OptiMixedCoeffSensitvity</a>	</li><li><a href="SPTSpace.html" class="code" title="function NSPT_Vector = SPTSpace(Nb, n)">SPTSpace</a>	NSPT_Vector = SPTSpace(Nb, n)</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function out = NPT(in, Nb, n)</a>
+0002 
+0003 <span class="comment">% out = NPT(in, N, n)</span>
+0004 <span class="comment">% This function exports the correspondence Signed-Power-of-Two (SPT) value for</span>
+0005 <span class="comment">% the input value 'in'.</span>
+0006 <span class="comment">%</span>
+0007 <span class="comment">%   in :    Input integer</span>
+0008 <span class="comment">%   Nb:      Number of ones in for the desired SPT, N belongs to (1, 2, 3) only</span>
+0009 <span class="comment">%   n:      Quantization bit width for this number</span>
+0010 
+0011 out2=[];
+0012 single_PT = <a href="SPTSpace.html" class="code" title="function NSPT_Vector = SPTSpace(Nb, n)">SPTSpace</a>(2,n);
+0013 double_PT = <a href="SPTSpace.html" class="code" title="function NSPT_Vector = SPTSpace(Nb, n)">SPTSpace</a>(Nb,n);
+0014   
+0015     
+0016     <span class="keyword">for</span> l = 1 : length(in),
+0017         <span class="keyword">for</span> m = 1 : length(double_PT)-1,
+0018             <span class="keyword">if</span> in(l) &gt; 0,
+0019                 <span class="keyword">if</span> in(l) &gt;= double_PT(m) &amp; in(l) &lt;= double_PT(m+1),
+0020                     diff1 = double_PT(m+1) - in(l);
+0021                     diff2 = in(l) - double_PT(m);
+0022                     <span class="keyword">if</span> min([diff1 diff2]) == diff1,
+0023                         out2(l) = double_PT(m+1);
+0024                     <span class="keyword">else</span>
+0025                         out2(l) = double_PT(m);
+0026                     <span class="keyword">end</span>
+0027                 <span class="keyword">end</span>
+0028             <span class="keyword">else</span>
+0029                 <span class="keyword">if</span> abs(in(l)) &gt;= double_PT(m) &amp; abs(in(l)) &lt;= double_PT(m+1),
+0030                     diff1 = double_PT(m+1) - abs(in(l));
+0031                     diff2 = abs(in(l)) - double_PT(m);
+0032                     <span class="keyword">if</span> min([diff1 diff2]) == diff1,
+0033                         out2(l) = -1*double_PT(m+1);
+0034                     <span class="keyword">else</span>
+0035                         out2(l) = -1*double_PT(m);
+0036                     <span class="keyword">end</span>
+0037                 <span class="keyword">elseif</span> in(l) == 0,
+0038                     out2(l) = 0;
+0039                 <span class="keyword">end</span>   
+0040             <span class="keyword">end</span>
+0041         <span class="keyword">end</span>
+0042     <span class="keyword">end</span> 
+0043 
+0044     <span class="keyword">if</span> Nb == 1,
+0045         out = <a href="SPT.html" class="code" title="function y = SPT(x)">SPT</a>(in);
+0046     <span class="keyword">else</span>,
+0047         out = out2;
+0048     <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Tue 17-Apr-2012 15:26:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

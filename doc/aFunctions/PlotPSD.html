@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of PlotPSD</title>
+  <meta name="keywords" content="PlotPSD">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- # aFunctions -->
+<h1>PlotPSD
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function PlotPSD(data, Fs, color, Title) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">
+ PlotPSD(data, Fs, color, Title)
+
+ This function used to plot the PSD of lowpass sigma delta modulator 
+ patterns.
+
+   data:   Pattern to be ploted
+   Fs:     Sampling frequency
+   color:  Color of the graph 'optional'
+   Title:  Title of the graph 'optional'</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="GetSpectrum.html" class="code" title="function [Fxx, f]=GetSpectrum(X, NFFT, Fs)">GetSpectrum</a>	</li><li><a href="TwoPowerN.html" class="code" title="function y = TwoPowerN(number)">TwoPowerN</a>	y = TwoPowerN(number)</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function PlotPSD(data, Fs, color, Title)</a>
+0002 
+0003 <span class="comment">%</span>
+0004 <span class="comment">% PlotPSD(data, Fs, color, Title)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% This function used to plot the PSD of lowpass sigma delta modulator</span>
+0007 <span class="comment">% patterns.</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">%   data:   Pattern to be ploted</span>
+0010 <span class="comment">%   Fs:     Sampling frequency</span>
+0011 <span class="comment">%   color:  Color of the graph 'optional'</span>
+0012 <span class="comment">%   Title:  Title of the graph 'optional'</span>
+0013 
+0014 <span class="keyword">if</span> nargin == 2,
+0015     Np = <a href="TwoPowerN.html" class="code" title="function y = TwoPowerN(number)">TwoPowerN</a>(length(data));
+0016     [spectr_psd, freq_psd] = <a href="GetSpectrum.html" class="code" title="function [Fxx, f]=GetSpectrum(X, NFFT, Fs)">GetSpectrum</a>(data, Np, Fs);
+0017     semilogx(freq_psd, 10*log10(spectr_psd*Fs/Np));
+0018 <span class="keyword">else</span>
+0019     Np = <a href="TwoPowerN.html" class="code" title="function y = TwoPowerN(number)">TwoPowerN</a>(length(data));
+0020     [spectr_psd, freq_psd] = <a href="GetSpectrum.html" class="code" title="function [Fxx, f]=GetSpectrum(X, NFFT, Fs)">GetSpectrum</a>(data, Np, Fs);
+0021     semilogx(freq_psd, 10*log10(spectr_psd*Fs/Np), color);
+0022 <span class="keyword">end</span>    
+0023 
+0024 <span class="keyword">if</span> nargin == 4 &amp; Title ~= 0,
+0025     title([Title]);
+0026 <span class="keyword">end</span>
+0027     
+0028 grid on
+0029 xlabel(<span class="string">'Frequency - Hz'</span>);
+0030 ylabel(<span class="string">'PSD - dB'</span>);</pre></div>
+<hr><address>Generated on Tue 17-Apr-2012 15:26:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

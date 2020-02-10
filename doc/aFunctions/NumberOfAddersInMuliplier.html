@@ -1,0 +1,209 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of NumberOfAddersInMuliplier</title>
+  <meta name="keywords" content="NumberOfAddersInMuliplier">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- # aFunctions -->
+<h1>NumberOfAddersInMuliplier
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function  adders = NumberOfAddersInMuliplier(coeff, n) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">
+ adders = NumberOfAddersInMuliplier(coeff, n)
+
+ Calculate number of adders in a whole multiplier according to the number
+ of binary multipliers. This number is from the hardware point of view,
+ because at each multiplier only ones will be implemented as hardwired
+ multiplier. We use it to estimate the number of adders for FIR filter
+
+   coeff:    Normalized filter coefficients
+   n:        Quantization bitwidth for the declared coefficients
+
+   adders:   Number of adders in constant multiplier</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function bin_array = dec2bin_array_2s(dec_array, n)</a></li><li><a href="#_sub2" class="code">function binary = decimal2binary_2s(decimal, n)</a></li><li><a href="#_sub3" class="code">function binary = decimal2binary(decimal, n)</a></li><li><a href="#_sub4" class="code">function decimal = binary2decimal(binary);</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function  adders = NumberOfAddersInMuliplier(coeff, n)</a>
+0002 
+0003 <span class="comment">%</span>
+0004 <span class="comment">% adders = NumberOfAddersInMuliplier(coeff, n)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Calculate number of adders in a whole multiplier according to the number</span>
+0007 <span class="comment">% of binary multipliers. This number is from the hardware point of view,</span>
+0008 <span class="comment">% because at each multiplier only ones will be implemented as hardwired</span>
+0009 <span class="comment">% multiplier. We use it to estimate the number of adders for FIR filter</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%   coeff:    Normalized filter coefficients</span>
+0012 <span class="comment">%   n:        Quantization bitwidth for the declared coefficients</span>
+0013 <span class="comment">%</span>
+0014 <span class="comment">%   adders:   Number of adders in constant multiplier</span>
+0015 
+0016 bin_array = <a href="#_sub1" class="code" title="subfunction bin_array = dec2bin_array_2s(dec_array, n)">dec2bin_array_2s</a>(coeff, n);
+0017  
+0018 num_binary_multipliers = sum(bin_array);
+0019 
+0020 num_adders = num_binary_multipliers - 1;
+0021 
+0022 adders = sum(num_adders);
+0023 
+0024 <span class="comment">%%%%%%%%%%%%%%%</span>
+0025 <span class="comment">% SUBFUNCTION %</span>
+0026 <span class="comment">%%%%%%%%%%%%%%%</span>
+0027 <a name="_sub1" href="#_subfunctions" class="code">function bin_array = dec2bin_array_2s(dec_array, n)</a>
+0028 
+0029 <span class="comment">% This function convert decimal vector to its equivelent binary array, and</span>
+0030 <span class="comment">% it support negative numbers too represented in 2's complement format</span>
+0031 
+0032 <span class="comment">% dec_array :   input decimal vector, each element in the vector represent</span>
+0033 <span class="comment">%               single decimal number</span>
+0034 <span class="comment">% n         :   binary bit width</span>
+0035 <span class="comment">% bin_array :   output binary array equivelent to the input decimal vecctorfunction bin_array = dec2bin_array_2s(dec_array, n);</span>
+0036 
+0037 bin_array = zeros(length(dec_array), n);
+0038 
+0039 <span class="keyword">for</span> i = 1 : length(dec_array),
+0040     bin_array(i,:) = <a href="#_sub2" class="code" title="subfunction binary = decimal2binary_2s(decimal, n)">decimal2binary_2s</a>(dec_array(i), n);
+0041 <span class="keyword">end</span>
+0042 
+0043 <span class="comment">%%%%%%%%%%%%%%%</span>
+0044 <span class="comment">% SUBFUNCTION %</span>
+0045 <span class="comment">%%%%%%%%%%%%%%%</span>
+0046 <a name="_sub2" href="#_subfunctions" class="code">function binary = decimal2binary_2s(decimal, n)</a>
+0047 
+0048 <span class="comment">% This function convert decimal number to its 2's complement binary equivelent</span>
+0049 
+0050 tmp = decimal;
+0051 count = 0;
+0052 
+0053 <span class="keyword">for</span> i = 1 : n,
+0054     <span class="keyword">if</span> i == n,
+0055         one(i) = 1;
+0056     <span class="keyword">else</span> 
+0057         one(i) = 0;
+0058     <span class="keyword">end</span>
+0059 <span class="keyword">end</span>
+0060 
+0061 <span class="keyword">while</span> tmp &gt; 1,
+0062     tmp = tmp/2;
+0063     count = count + 1;
+0064 <span class="keyword">end</span>
+0065 min_length = count;
+0066 
+0067 <span class="keyword">if</span> n &lt; min_length,
+0068     fprintf(<span class="string">'The number of bits is not sufficent \n'</span>);
+0069 <span class="keyword">else</span>
+0070     <span class="keyword">if</span> decimal &gt;= 0,
+0071         dividend = decimal;
+0072         <span class="keyword">for</span> i = 1 : n,
+0073             remainder(i) = rem(dividend, 2);
+0074             dividend = floor(dividend/2);
+0075         <span class="keyword">end</span>
+0076             binary = fliplr(remainder);
+0077     <span class="keyword">else</span>
+0078         dividend = abs(decimal);
+0079         <span class="keyword">for</span> i = 1 : n,
+0080             remainder(i) = rem(dividend, 2);
+0081             dividend = floor(dividend/2);
+0082         <span class="keyword">end</span>
+0083             norm_binary = fliplr(remainder);  
+0084             complement = not(norm_binary);
+0085             binary_tmp = complement + one;
+0086             
+0087             <span class="keyword">for</span> i = 1 : length(binary_tmp),
+0088                 <span class="keyword">if</span> binary_tmp(i) &gt; 1,
+0089                     flag = 1;
+0090                 <span class="keyword">else</span>
+0091                     flag = 0;
+0092                 <span class="keyword">end</span>
+0093             <span class="keyword">end</span>
+0094             
+0095             <span class="keyword">if</span> flag == 1,
+0096                 binarytmp = <a href="#_sub4" class="code" title="subfunction decimal = binary2decimal(binary);">binary2decimal</a>(complement) + 1;
+0097                 binary = <a href="#_sub3" class="code" title="subfunction binary = decimal2binary(decimal, n)">decimal2binary</a>(binarytmp, n);
+0098             <span class="keyword">else</span>
+0099                 binary = complement + one;
+0100             <span class="keyword">end</span>
+0101     <span class="keyword">end</span>
+0102 <span class="keyword">end</span>
+0103 
+0104 <span class="comment">%%%%%%%%%%%%%%%</span>
+0105 <span class="comment">% SUBFUNCTION %</span>
+0106 <span class="comment">%%%%%%%%%%%%%%%</span>
+0107 <a name="_sub3" href="#_subfunctions" class="code">function binary = decimal2binary(decimal, n)</a>
+0108 
+0109 <span class="comment">% This function convert decimal number to its binary equivelent</span>
+0110 
+0111 dividend = decimal;
+0112 tmp = decimal;
+0113 count = 0;
+0114 
+0115 <span class="keyword">while</span> tmp &gt; 1,
+0116     tmp = tmp/2;
+0117     count = count + 1;
+0118 <span class="keyword">end</span>
+0119 min_length = count;
+0120 
+0121 <span class="keyword">if</span> n &lt; min_length,
+0122     fprintf(<span class="string">'The number of bits is not sufficent \n'</span>);
+0123 <span class="keyword">else</span>
+0124     <span class="keyword">for</span> i = 1 : n,
+0125         remainder(i) = rem(dividend, 2);
+0126         dividend = floor(dividend/2);
+0127     <span class="keyword">end</span>
+0128         binary = fliplr(remainder);
+0129 <span class="keyword">end</span>
+0130 
+0131 <span class="comment">%%%%%%%%%%%%%%%</span>
+0132 <span class="comment">% SUBFUNCTION %</span>
+0133 <span class="comment">%%%%%%%%%%%%%%%</span>
+0134 <a name="_sub4" href="#_subfunctions" class="code">function decimal = binary2decimal(binary);</a>
+0135 
+0136 <span class="comment">% This function binary number to its decimal equivelent</span>
+0137 <span class="comment">% binary    : input binary number with any bit width</span>
+0138 <span class="comment">% decimal   : output decimal equivelent to the binary input</span>
+0139 
+0140 binary = fliplr(binary);
+0141 
+0142 <span class="keyword">for</span> i = 1 : length(binary),
+0143     <span class="keyword">if</span> binary(i) == 1,
+0144         tmp(i) = 2^(i-1);
+0145     <span class="keyword">else</span>
+0146         tmp(i) = 0;
+0147     <span class="keyword">end</span>
+0148     
+0149 <span class="keyword">end</span>
+0150 decimal = sum(tmp);</pre></div>
+<hr><address>Generated on Tue 17-Apr-2012 15:26:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

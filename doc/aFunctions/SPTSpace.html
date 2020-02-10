@@ -1,0 +1,168 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of SPTSpace</title>
+  <meta name="keywords" content="SPTSpace">
+  <meta name="description" content="NSPT_Vector = SPTSpace(Nb, n)">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- # aFunctions -->
+<h1>SPTSpace
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>NSPT_Vector = SPTSpace(Nb, n)</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function NSPT_Vector = SPTSpace(Nb, n) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> NSPT_Vector = SPTSpace(Nb, n)
+ This function exports the dense SPT space.
+ 
+   Nb:     Maximum number of non-zero digitas for SPT factor
+   n:      Maximum power of two factor
+
+ Example:
+ n = 5
+ if Nb = 2 then
+ 1SPT = 1 2 4 8 16 
+ 2SPT = 3 6 12 24
+ so the SPT space = 1 2 3 4 6 8 12 16 24
+
+ if Nb = 3 then
+ 1SPT = 1 2 4 8 16 
+ 2SPT = 3 6 12 24
+ 3SPT = 7 14 28
+ so the SPT space = 1 2 3 4 6 7 8 12 14 16 24 28</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="NPT.html" class="code" title="function out = NPT(in, Nb, n)">NPT</a>	out = NPT(in, N, n)</li><li><a href="SPT.html" class="code" title="function y = SPT(x)">SPT</a>	</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="NPT.html" class="code" title="function out = NPT(in, Nb, n)">NPT</a>	out = NPT(in, N, n)</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function NPT = GenerateSPTs(Nb, n)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function NSPT_Vector = SPTSpace(Nb, n)</a>
+0002 
+0003 <span class="comment">% NSPT_Vector = SPTSpace(Nb, n)</span>
+0004 <span class="comment">% This function exports the dense SPT space.</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">%   Nb:     Maximum number of non-zero digitas for SPT factor</span>
+0007 <span class="comment">%   n:      Maximum power of two factor</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">% Example:</span>
+0010 <span class="comment">% n = 5</span>
+0011 <span class="comment">% if Nb = 2 then</span>
+0012 <span class="comment">% 1SPT = 1 2 4 8 16</span>
+0013 <span class="comment">% 2SPT = 3 6 12 24</span>
+0014 <span class="comment">% so the SPT space = 1 2 3 4 6 8 12 16 24</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">% if Nb = 3 then</span>
+0017 <span class="comment">% 1SPT = 1 2 4 8 16</span>
+0018 <span class="comment">% 2SPT = 3 6 12 24</span>
+0019 <span class="comment">% 3SPT = 7 14 28</span>
+0020 <span class="comment">% so the SPT space = 1 2 3 4 6 7 8 12 14 16 24 28</span>
+0021 
+0022 NSPT_Matrix = zeros(Nb, n);
+0023 
+0024 <span class="keyword">for</span> i = 1 : Nb,
+0025     lengths(i) = n-(i-1);
+0026 <span class="keyword">end</span>
+0027 
+0028 <span class="keyword">for</span> j = 1 : Nb,
+0029     NSPT_Matrix(j,1:lengths(j)) = <a href="#_sub1" class="code" title="subfunction NPT = GenerateSPTs(Nb, n)">GenerateSPTs</a>(j, n);
+0030 <span class="keyword">end</span>
+0031     
+0032 k=1;
+0033 <span class="keyword">for</span> i = 1 : n,
+0034     <span class="keyword">for</span> j = 1 : Nb,
+0035         columns(k) = i-j+1;
+0036         <span class="keyword">if</span> i &gt;= Nb,
+0037             rows(k) = j;
+0038         <span class="keyword">elseif</span> i == 1 &amp; j == 1,
+0039             rows(k) = 1;
+0040         <span class="keyword">elseif</span> i ~= 1 &amp; i &lt; Nb &amp; j &lt;= i,
+0041             rows(k) = j;
+0042         <span class="keyword">else</span>
+0043             rows(k) = 0;
+0044         <span class="keyword">end</span>
+0045         k = k+1;
+0046     <span class="keyword">end</span>
+0047 <span class="keyword">end</span>
+0048 
+0049 col = [];
+0050 row = [];
+0051 m = 1;
+0052 n = 1;
+0053 <span class="keyword">for</span> l = 1 : prod(size(NSPT_Matrix)),
+0054     <span class="keyword">if</span> columns(l) &lt;= 0,
+0055         m = m;
+0056     <span class="keyword">else</span>
+0057         col(m) = columns(l);
+0058         m = m + 1;
+0059     <span class="keyword">end</span>
+0060     <span class="keyword">if</span> rows(l) &lt;= 0,
+0061         n = n;
+0062     <span class="keyword">else</span>
+0063         row(n) = rows(l);
+0064         n = n + 1;
+0065     <span class="keyword">end</span>
+0066 <span class="keyword">end</span>
+0067 
+0068 <span class="keyword">for</span> o = 1 : length(row),
+0069     NSPT_Vector(o) = NSPT_Matrix(row(o), col(o));
+0070 <span class="keyword">end</span>
+0071 
+0072 <span class="comment">%%%%%%%%%%%%%%%</span>
+0073 <span class="comment">% SUBFUNCTION %</span>
+0074 <span class="comment">%%%%%%%%%%%%%%%</span>
+0075 <a name="_sub1" href="#_subfunctions" class="code">function NPT = GenerateSPTs(Nb, n)</a>
+0076 
+0077 <span class="comment">% This function export the Nb-SPT factor numbers for Nb up to n bits.</span>
+0078 <span class="comment">%</span>
+0079 <span class="comment">%   Nb:     Maximum number of non-zero digitas for SPT factor</span>
+0080 <span class="comment">%   n:      Maximum power of two factor</span>
+0081 <span class="comment">%</span>
+0082 <span class="comment">% Example:</span>
+0083 <span class="comment">% n = 10 -&gt; maximum power-of-two factor is 2^10-1 = 512</span>
+0084 <span class="comment">% Nb = 1 -&gt; each coefficient only has 1 power-of-two factor</span>
+0085 <span class="comment">%           1 2 4 8 16 == 2^0 2^1 2^2 2^3 2^4</span>
+0086 <span class="comment">% Nb = 2 -&gt; each coefficient has 2 power-of-two factors</span>
+0087 <span class="comment">%           3 6 12 24  == (1+2) (2+4) (4+8) (8+16)</span>
+0088 <span class="comment">% Nb = 3 -&gt; each coefficient has 3 power-of-two factors</span>
+0089 <span class="comment">%           7 14 28    == (1+2+4) (2+4+8) (4+8+16)</span>
+0090 
+0091 <span class="keyword">if</span> Nb &gt; n,
+0092     fprintf(<span class="string">'WARNING: It is recommended to make n larger than or equal Nb'</span>);
+0093 <span class="keyword">end</span>
+0094 
+0095 <a href="SPT.html" class="code" title="function y = SPT(x)">SPT</a> = [];
+0096 <span class="keyword">for</span> i = 1 : n,
+0097     <a href="SPT.html" class="code" title="function y = SPT(x)">SPT</a>(i) = 2^(i-1);
+0098 <span class="keyword">end</span>
+0099 
+0100 <a href="NPT.html" class="code" title="function out = NPT(in, Nb, n)">NPT</a> = [];
+0101 <span class="keyword">for</span> j = 1 : n-Nb+1,
+0102     <a href="NPT.html" class="code" title="function out = NPT(in, Nb, n)">NPT</a>(j) = sum(<a href="SPT.html" class="code" title="function y = SPT(x)">SPT</a>(j:j+Nb-1));
+0103 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Tue 17-Apr-2012 15:26:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

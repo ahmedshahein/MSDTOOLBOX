@@ -1,0 +1,282 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of TestQuantizedFiltersIBNSig</title>
+  <meta name="keywords" content="TestQuantizedFiltersIBNSig">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- # aFunctions -->
+<h1>TestQuantizedFiltersIBNSig
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function  quatization_effect_on_IBN_Sig = TestQuantizedFiltersIBNSig(quantized_filter_coefficients, filter_lengths, quantization_coefficients, sdm_data, Fs, OSR, Fsignal, K, M, q, plot_psd, export_IBN, print_IBN, print_Sig, IBN_penalty, Sig_penalty) %, auto_manual) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">
+ quatization_effect_on_IBN_Sig = TestQuantizedFiltersIBNSig(quantized_filter_coefficients, filter_lengths, quantization_coefficients, sdm_data, Fs, OSR, Fsignal, K, M, q, plot_psd, export_IBN, print_IBN, print_Sig, IBN_penalty, Sig_penalty)
+
+ This function test the quantization effect of the filter coefficients, by
+ examining the its effect on IBN and Signal peak. This function might
+ exhaust some time during calculations since the number of iterations
+ depend on the length of the q matrix, e.g. 
+ K = 3;
+ q = [[15 14 13 12 11 10];
+      [15 14 13 12 11 10];
+      [15 14 13 12 11 10]];
+ The number of iterations here will be 6^3 = length(q)^K.
+ The testing procudure will be as follow;
+ [15 15 15] 15-bit for the first filter, 15-bit for the second filter, 15-bit for the third filter 
+ [15 15 14] 15-bit for the first filter, 15-bit for the second filter, 14-bit for the third filter 
+ [15 15 13] 15-bit for the first filter, 15-bit for the second filter, 13-bit for the third filter 
+     .
+     .
+     .
+ [15 14 15] 15-bit for the first filter, 14-bit for the second filter, 15-bit for the third filter 
+ [15 14 14] 15-bit for the first filter, 14-bit for the second filter, 14-bit for the third filter 
+ [15 14 13]
+     .
+     .
+     .
+ and so on.
+
+ The function will print on the command window a table holding the
+ quantization bit width for each stage and the penalty in IBN and Signal
+ peak, if the designer constrain the acceptable penalty in IBN and Signal,
+ the table will hold only the values satisfy those two constarins.
+
+   quantized_filter_coefficients:      Matrix of filter coefficients exported from 'decimator_coefficient_sensitivity' function, 
+                                       which represents the coefficients at each stage
+   filter_lengths:                     Vector of filter lengths exported from 'decimation_filters' function, which 
+                                       represents the filter length at each stage 
+   sdm_data:                           Array holds the Delta-Sigma Modulator data
+   Fs:                                 Sampling frequency
+   OSR:                                Over Sampling Ratio
+   Fsignal:                            Signal frequency
+   K:                                  Number of decimation stages
+   M:                                  Vector holds the decimation factor at each stage
+   plot_psd:                           Optional flag for plotting the PSD before and after 
+                                       decimation, 1 -&gt; Plot or 0 -&gt; don't Plot
+   export_IBN:                         Optinal flag to export vector holding the IBN
+                                       before and after decimation, 1 -&gt; export, 0 -&gt;
+                                       don't export, [IBN_before_decimation  IBN_after_decimation]
+   print_IBN:                          Optinal flag to print the IBn before and after
+                                       decimation in the command window, where
+                                       1 -&gt; print or 0 -&gt; don't print
+   print_Sig:                          Optinal flag to print the Signal peak value
+                                       before and after decimation
+                                       1 -&gt; print or 0 -&gt; don't print
+   IBN_penalty:                        Acceptable penalty in IBN after deciamtion, 
+                                       IBN_penalty = IBN'before decimation' - IBN'after deciamtion'
+                                       e.g.
+                                       -70 - (-66) = -4dB
+   Sig_penalty                         Acceptable penalty in the signal peak,
+                                       Sig_penalty = Signal peak'before deciamtion'-Signal peak'after deciamtion'
+                                       e.g.
+                                       -3dB - (-3.2) = 0.2dB
+   auto_manual                         Flag to calculate the optimized quantization factors, wether automatically or manually.
+                                       1 -&gt; Auto, 0 -&gt; Manual
+                                       Auto means that the function will export the
+                                       quantization factor correspondent to the
+                                       minimum IBN.
+                                       Manual means that the function will export a
+                                       table of the quantization factors that
+                                       satisfy the acceptable penalty range, and the
+                                       designer has to choose the q factor manually.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="FilterAndDownsample.html" class="code" title="function [deci_data IBN Sig] = FilterAndDownsample(filter_coefficients, filter_lengths, sdm_data, Fs, OSR, Fsignal, K, M, plot_psd, export_IBN, print_IBN, print_Sig)">FilterAndDownsample</a>	</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function  quatization_effect_on_IBN_Sig = TestQuantizedFiltersIBNSig(quantized_filter_coefficients, filter_lengths, quantization_coefficients, sdm_data, Fs, OSR, Fsignal, K, M, q, plot_psd, export_IBN, print_IBN, print_Sig, IBN_penalty, Sig_penalty) </a><span class="comment">%, auto_manual)</span>
+0002 
+0003 <span class="comment">%</span>
+0004 <span class="comment">% quatization_effect_on_IBN_Sig = TestQuantizedFiltersIBNSig(quantized_filter_coefficients, filter_lengths, quantization_coefficients, sdm_data, Fs, OSR, Fsignal, K, M, q, plot_psd, export_IBN, print_IBN, print_Sig, IBN_penalty, Sig_penalty)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% This function test the quantization effect of the filter coefficients, by</span>
+0007 <span class="comment">% examining the its effect on IBN and Signal peak. This function might</span>
+0008 <span class="comment">% exhaust some time during calculations since the number of iterations</span>
+0009 <span class="comment">% depend on the length of the q matrix, e.g.</span>
+0010 <span class="comment">% K = 3;</span>
+0011 <span class="comment">% q = [[15 14 13 12 11 10];</span>
+0012 <span class="comment">%      [15 14 13 12 11 10];</span>
+0013 <span class="comment">%      [15 14 13 12 11 10]];</span>
+0014 <span class="comment">% The number of iterations here will be 6^3 = length(q)^K.</span>
+0015 <span class="comment">% The testing procudure will be as follow;</span>
+0016 <span class="comment">% [15 15 15] 15-bit for the first filter, 15-bit for the second filter, 15-bit for the third filter</span>
+0017 <span class="comment">% [15 15 14] 15-bit for the first filter, 15-bit for the second filter, 14-bit for the third filter</span>
+0018 <span class="comment">% [15 15 13] 15-bit for the first filter, 15-bit for the second filter, 13-bit for the third filter</span>
+0019 <span class="comment">%     .</span>
+0020 <span class="comment">%     .</span>
+0021 <span class="comment">%     .</span>
+0022 <span class="comment">% [15 14 15] 15-bit for the first filter, 14-bit for the second filter, 15-bit for the third filter</span>
+0023 <span class="comment">% [15 14 14] 15-bit for the first filter, 14-bit for the second filter, 14-bit for the third filter</span>
+0024 <span class="comment">% [15 14 13]</span>
+0025 <span class="comment">%     .</span>
+0026 <span class="comment">%     .</span>
+0027 <span class="comment">%     .</span>
+0028 <span class="comment">% and so on.</span>
+0029 <span class="comment">%</span>
+0030 <span class="comment">% The function will print on the command window a table holding the</span>
+0031 <span class="comment">% quantization bit width for each stage and the penalty in IBN and Signal</span>
+0032 <span class="comment">% peak, if the designer constrain the acceptable penalty in IBN and Signal,</span>
+0033 <span class="comment">% the table will hold only the values satisfy those two constarins.</span>
+0034 <span class="comment">%</span>
+0035 <span class="comment">%   quantized_filter_coefficients:      Matrix of filter coefficients exported from 'decimator_coefficient_sensitivity' function,</span>
+0036 <span class="comment">%                                       which represents the coefficients at each stage</span>
+0037 <span class="comment">%   filter_lengths:                     Vector of filter lengths exported from 'decimation_filters' function, which</span>
+0038 <span class="comment">%                                       represents the filter length at each stage</span>
+0039 <span class="comment">%   sdm_data:                           Array holds the Delta-Sigma Modulator data</span>
+0040 <span class="comment">%   Fs:                                 Sampling frequency</span>
+0041 <span class="comment">%   OSR:                                Over Sampling Ratio</span>
+0042 <span class="comment">%   Fsignal:                            Signal frequency</span>
+0043 <span class="comment">%   K:                                  Number of decimation stages</span>
+0044 <span class="comment">%   M:                                  Vector holds the decimation factor at each stage</span>
+0045 <span class="comment">%   plot_psd:                           Optional flag for plotting the PSD before and after</span>
+0046 <span class="comment">%                                       decimation, 1 -&gt; Plot or 0 -&gt; don't Plot</span>
+0047 <span class="comment">%   export_IBN:                         Optinal flag to export vector holding the IBN</span>
+0048 <span class="comment">%                                       before and after decimation, 1 -&gt; export, 0 -&gt;</span>
+0049 <span class="comment">%                                       don't export, [IBN_before_decimation  IBN_after_decimation]</span>
+0050 <span class="comment">%   print_IBN:                          Optinal flag to print the IBn before and after</span>
+0051 <span class="comment">%                                       decimation in the command window, where</span>
+0052 <span class="comment">%                                       1 -&gt; print or 0 -&gt; don't print</span>
+0053 <span class="comment">%   print_Sig:                          Optinal flag to print the Signal peak value</span>
+0054 <span class="comment">%                                       before and after decimation</span>
+0055 <span class="comment">%                                       1 -&gt; print or 0 -&gt; don't print</span>
+0056 <span class="comment">%   IBN_penalty:                        Acceptable penalty in IBN after deciamtion,</span>
+0057 <span class="comment">%                                       IBN_penalty = IBN'before decimation' - IBN'after deciamtion'</span>
+0058 <span class="comment">%                                       e.g.</span>
+0059 <span class="comment">%                                       -70 - (-66) = -4dB</span>
+0060 <span class="comment">%   Sig_penalty                         Acceptable penalty in the signal peak,</span>
+0061 <span class="comment">%                                       Sig_penalty = Signal peak'before deciamtion'-Signal peak'after deciamtion'</span>
+0062 <span class="comment">%                                       e.g.</span>
+0063 <span class="comment">%                                       -3dB - (-3.2) = 0.2dB</span>
+0064 <span class="comment">%   auto_manual                         Flag to calculate the optimized quantization factors, wether automatically or manually.</span>
+0065 <span class="comment">%                                       1 -&gt; Auto, 0 -&gt; Manual</span>
+0066 <span class="comment">%                                       Auto means that the function will export the</span>
+0067 <span class="comment">%                                       quantization factor correspondent to the</span>
+0068 <span class="comment">%                                       minimum IBN.</span>
+0069 <span class="comment">%                                       Manual means that the function will export a</span>
+0070 <span class="comment">%                                       table of the quantization factors that</span>
+0071 <span class="comment">%                                       satisfy the acceptable penalty range, and the</span>
+0072 <span class="comment">%                                       designer has to choose the q factor manually.</span>
+0073 <span class="comment">%</span>
+0074 
+0075 <span class="comment">% Filter and downsample the DSm output using the quantized filters in the</span>
+0076 <span class="comment">% previous step and pltting the PSD for each trial</span>
+0077 [rows columns] = size(quantized_filter_coefficients);
+0078 <span class="keyword">for</span> i = 1 : rows/K,
+0079     filter_coefficients_temporary = quantized_filter_coefficients((i-1)*K+1:i*K,:);
+0080     [deci_data(:,i) IBN(i,:) Sig(i,:)] = <a href="FilterAndDownsample.html" class="code" title="function [deci_data IBN Sig] = FilterAndDownsample(filter_coefficients, filter_lengths, sdm_data, Fs, OSR, Fsignal, K, M, plot_psd, export_IBN, print_IBN, print_Sig)">FilterAndDownsample</a>(filter_coefficients_temporary, filter_lengths, sdm_data, Fs, OSR, Fsignal, K, M, plot_psd, export_IBN, print_IBN, print_Sig);
+0081     q_coeff_K_stages(i,1:K) = quantization_coefficients((i-1)*K+1:i*K);
+0082 <span class="keyword">end</span>
+0083 
+0084 <span class="comment">% Calculate the difference in IBN and Signal peak before and after</span>
+0085 <span class="comment">% quntization</span>
+0086 <span class="keyword">for</span> j = 1 : size(IBN, 1), <span class="comment">%length(IBN),</span>
+0087     diff_IBN(j) = IBN(j,1) - IBN(j,2);
+0088     diff_Sig(j) = Sig(j,1) - Sig(j,2);
+0089 <span class="keyword">end</span>
+0090 
+0091 <span class="keyword">if</span> nargin &gt; 14,
+0092     <span class="keyword">for</span> l = 1 : size(IBN, 1), <span class="comment">%length(IBN),</span>
+0093         <span class="keyword">if</span> diff_IBN(l) &gt;= IBN_penalty &amp; diff_IBN(l) &lt;= 0,
+0094             <span class="keyword">if</span> diff_Sig(l) &gt;= -Sig_penalty &amp; diff_Sig(l) &lt;= Sig_penalty, <span class="comment">% -Sig_penalty%%%%</span>
+0095             <span class="comment">%if diff_Sig(l) &lt;= Sig_penalty,</span>
+0096                 accepted_diff_IBN(l)    = diff_IBN(l);
+0097                 accepted_diff_Sig(l)    = diff_Sig(l);
+0098                 accepted_index(l)       = l;
+0099             <span class="keyword">else</span>
+0100                 accepted_diff_IBN(l)    = 0;
+0101                 accepted_diff_Sig(l)    = 0;
+0102                 accepted_index(l)       = 0;
+0103             <span class="keyword">end</span>
+0104         <span class="keyword">else</span>
+0105             accepted_diff_IBN(l)    = 0;
+0106             accepted_diff_Sig(l)    = 0;
+0107             accepted_index(l)       = 0;
+0108         <span class="keyword">end</span>
+0109     <span class="keyword">end</span>
+0110 <span class="keyword">end</span>
+0111 
+0112 [qrows qcolumns] = size(q);
+0113 
+0114 <span class="keyword">if</span> qrows == 1,
+0115     
+0116     <span class="comment">% Form a matrix holding the</span>
+0117     <span class="comment">% Quantization bit width                                    -- 1st column</span>
+0118     <span class="comment">% Difference in IBN before and after quantization           -- 2nd column</span>
+0119     <span class="comment">% Difference in Signal peak before and after quantization   -- 3rd column</span>
+0120 
+0121     quatization_effect_on_IBN_Sig           = zeros(length(IBN), 3);
+0122     quatization_effect_on_IBN_Sig(:,1)      = q;
+0123     quatization_effect_on_IBN_Sig(:,2)      = diff_IBN;
+0124     quatization_effect_on_IBN_Sig(:,3)      = diff_Sig;
+0125 
+0126     <span class="comment">% Print the table in the command window</span>
+0127     fprintf(<span class="string">'Q -- IBN before decimation -- IBN after decimation -- Difference in IBN -- Sig after decimation -- Sig before decimation -- Difference in Sig \n'</span>);
+0128     <span class="keyword">for</span> k = 1 :length(IBN),
+0129         fprintf(<span class="string">'%2.0f   %3.4f                 %3.4f                %3.4f              %3.4f                 %3.4f                  %2.4f \n'</span>, quatization_effect_on_IBN_Sig(k,:));
+0130     <span class="keyword">end</span>
+0131 
+0132 <span class="keyword">else</span>
+0133     <span class="keyword">if</span> nargin &gt; 14, <span class="comment">% the penalty number are given as constrint</span>
+0134         q_tmp = q_coeff_K_stages;
+0135         quatization_effect_on_IBN_Sig               = zeros(length(IBN), K+2);
+0136         quatization_effect_on_IBN_Sig(:,1:K)        = q_tmp;
+0137         quatization_effect_on_IBN_Sig(:,K+1)        = accepted_diff_IBN;
+0138         quatization_effect_on_IBN_Sig(:,K+2)        = accepted_diff_Sig;
+0139     <span class="keyword">else</span>
+0140         q_tmp = q_coeff_K_stages;
+0141         quatization_effect_on_IBN_Sig               = zeros(length(IBN), K+2);
+0142         quatization_effect_on_IBN_Sig(:,1:K)        = q_tmp;
+0143         quatization_effect_on_IBN_Sig(:,K+1)        = diff_IBN;
+0144         quatization_effect_on_IBN_Sig(:,K+2)        = diff_Sig;
+0145     <span class="keyword">end</span>
+0146     
+0147     <span class="keyword">if</span> K == 2,
+0148         fprintf(<span class="string">'Q 1st Stage -- Q 2nd Stage -- Difference in IBN -- Difference in Sig \n'</span>);
+0149     <span class="keyword">elseif</span> K == 3, <span class="comment">%&amp; quatization_effect_on_IBN_Sig(k,K+1) ~= 0,</span>
+0150         fprintf(<span class="string">'Q 1st Stage -- Q 2nd Stage -- Q 3rd Stage -- Difference in IBN -- Difference in Sig \n'</span>);
+0151     <span class="keyword">elseif</span> K == 4,<span class="comment">% &amp; quatization_effect_on_IBN_Sig(k,K+1) ~= 0,</span>
+0152         fprintf(<span class="string">'Q 1st Stage -- Q 2nd Stage -- Q 3rd Stage -- Q 4th Stage -- Difference in IBN -- Difference in Sig \n'</span>);
+0153     <span class="keyword">end</span>
+0154     
+0155     <span class="keyword">for</span> k = 1 : length(IBN),
+0156         <span class="keyword">if</span> K == 2 &amp; quatization_effect_on_IBN_Sig(k,K+1) ~= 0,
+0157             fprintf(<span class="string">'%2.0f             %2.0f             %3.4f              %3.4f \n'</span>, quatization_effect_on_IBN_Sig(k,:));
+0158         <span class="keyword">elseif</span> K == 3 &amp; quatization_effect_on_IBN_Sig(k,K+1) ~= 0,
+0159             fprintf(<span class="string">'%2.0f             %2.0f             %2.0f             %3.4f              %3.4f \n'</span>, quatization_effect_on_IBN_Sig(k,:));
+0160         <span class="keyword">elseif</span> K == 4 &amp; quatization_effect_on_IBN_Sig(k,K+1) ~= 0,
+0161             fprintf(<span class="string">'%2.0f             %2.0f             %2.0f             %2.0f             %3.4f               %3.4f \n'</span>, quatization_effect_on_IBN_Sig(k,:));
+0162         <span class="keyword">end</span>
+0163     <span class="keyword">end</span>
+0164 
+0165 <span class="keyword">end</span>
+0166 
+0167 <span class="comment">% End</span></pre></div>
+<hr><address>Generated on Tue 17-Apr-2012 15:26:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

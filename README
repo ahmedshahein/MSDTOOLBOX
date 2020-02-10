@@ -1,0 +1,163 @@
+##################
+The MSD-toolbox: #
+##################
+The Multi-Stage Decimation (MSD) toolbox consists of five packages, as follow:
+
+1. Design
+2. Implementation
+3. Optimization
+4. Estimation
+5. Troubleshooting
+
+The Design package is used to design and tune the overall decimation parameters, 
+such as number of decimation stages (k), decimation factor at each stage (M), 
+and filter length at each stage (N). However, the main advantage of the MSD is 
+in the controllability and observability capabilities. The user can observe the 
+in-band noise (IBN) as well as the computation effort (RT) at each stage. 
+Further, the designer can choose between several filter architectures such as 
+cascaded integrator comb (CIC), half-band (HB), and multi-band (MB) either 
+narrow-band or wide-band.
+
+The Implementation package is used to consider fixed point representation for 
+VHDL implementation throughout quantization. The quantization bit-width (Q) 
+is tuned throughout iteration process within acceptable penalty in the IBN. 
+Further, it exports a VHDL top level model for RTL implementation.
+
+The Estimation package is used to estimate power dissipation in decimation 
+filter based on polyphase decimation (PPD) filter architecture only.
+
+The Troubleshooting package is used in correlation with the VHDL models for 
+troubleshooting simulation problems.
+
+The Optimization package optimizes the fixed-point filter coefficients, 
+i.e. reduces the number of non-zero terms in each coefficient. 
+The optimization is achieved by polynomial programming (PP) and 
+mixed integer linear programming (MILP).
+
+###################
+How to get start? #
+###################
+Untar the MSDTOOLBOX.tar.gz
+	tar xvf MSDTOOLBOX.tar.gz
+
+Read the README file carefully
+	gedit README
+
+Surf the toolbox help files
+	firefox doc/index.html
+
+Start by geven simple examples
+	matlab
+    run functions_path (EXECUTE THIS SCRIPT EVERYTIME YOU WANT TO USE MSDTOOLBOX)
+	open DSN_EXP_01
+	run DSN_EXP_01
+
+###################
+FOLDER STRUCTURE: #
+###################
+~/MSDTOOLBOX/
+            |__ aFunctions
+                    (developed auxiliary helping Matlab functions)
+            |__ bFunctions
+                    (developed basic Matlab functions using wrappers)
+            |__ iPatterns
+                    (sigma delta modulator input patterns)
+            |__ eCoefficients
+                    (exported filter coefficient for each decimation stage)
+            |__ dExamples
+                    (10 design examples cover broad applications)
+            |__ dTemplate
+                    (design template)
+            |__ doc
+                    (complete documentation o the toolbox in HTML format)                                 
+
+########
+Notes: #
+########
+Tested for Matlab 7.3.0.298 (R2006b)
+The toolbox was tested for lowpass decimation filter only
+
+###########
+EXAMPLES: #
+###########
+DSN_EXP_01 	Demonstrate a complete design example for 2nd order LPSDM, with: 
+            	Sampling frequency 	640kHz
+            	Over sampling ratio	16
+            	Input bitwidth		3
+
+DSN_EXP_02	Demonstrate a complete design example for 2nd order LPSDM, with: 
+            	Sampling frequency 	960kHz
+            	Over sampling ratio	24
+            	Input bitwidth		3
+
+DSN_EXP_03	Demonstrate a complete design example for 2nd order LPSDM, with: 
+            	Sampling frequency 	2.4MHz
+            	Over sampling ratio	48
+            	Input bitwidth		3	
+
+DSN_EXP_04	Demonstrate a complete design example for 2nd order LPSDM, with: 
+            	Sampling frequency 	9.6MHz
+            	Over sampling ratio	48
+            	Input bitwidth		3	
+
+DSN_EXP_05	Demonstrate a complete design example for 2nd order LPSDM, with: 
+            	Sampling frequency 	100MHz
+            	Over sampling ratio	26
+            	Input bitwidth		
+            	
+DSN_EXP_06	Demonstrate a complete design example for 2nd order LPSDM, with: 
+            	Sampling frequency 	250MHz
+            	Over sampling ratio	64
+            	Input bitwidth		3  
+            	
+DSN_EXP_07	Demonstrate a complete design example for Gyroscope modulator, with: 
+            	Sampling frequency 	103720Hz
+            	Over sampling ratio	1000
+            	Input bitwidth		1
+            	
+DSN_EXP_08	Demonstrate a complete design example for 3rd order LPSDM, with: 
+            	Sampling frequency 	96MHz
+            	Over sampling ratio	32
+            	Input bitwidth		3      
+            	
+DSN_EXP_GSM	Demonstrate a complete design example for GSM application, with: 
+            	Sampling frequency 	34.667MHz
+            	Over sampling ratio	128
+            	Input bitwidth		1
+
+###########	
+VERSIONS: #
+###########
+VERSION1        August, 2007
+VERSION2        February, 2008 	Non Power-Of-Two decimation factors has been considered
+                            	Odd multi-band filters has been considered
+VERSION3        April, 2008     Integration with Schreier, GloptiPoly, and CVX toolboxes
+VERSION4        May, 2008       Dense SPT space
+                            	3rd Order SDM
+                            	Wide and Narrow band multi-band filters	
+                            	Tune K and M before rpb and rsb
+VERSION5    	December, 2008  Using plotFunction for calculating IBN and Signal peak
+                            	Modifing the function called 'DecimatioMatrixNonPOT'
+                            	to avoid decimation factor of 1
+                            	Plotting frequency response always denormalized, i.e. 0 dB
+                            	is maximum
+                            	For decimation factors that doesn't have factors more than 2
+                            	export this value, i.e. OSR =26 -> M=[13 2] and print a warning
+                            	message
+VERSION6    	May, 2010       Integrating CIC filter for the first decimation stage
+VERSION7        November, 2011  POTx heuristic optimization package
+VERSION8    	April, 2012     Wrapper function
+
+####################
+COPYRIGHT (C) 2014 #
+####################
+Developed by: 
+Ahmed Shahein
+ahmed.shahein@imtek.de
+
+Revised by:
+Michael Maurer
+michael.maurer@imtek.de
+
+The help is generated in HTML format using M2HTML available at:
+http://www.artefact.tk/software/matlab/m2html/

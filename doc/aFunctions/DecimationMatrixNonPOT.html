@@ -1,0 +1,164 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of DecimationMatrixNonPOT</title>
+  <meta name="keywords" content="DecimationMatrixNonPOT">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- # aFunctions -->
+<h1>DecimationMatrixNonPOT
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function Dmatrix = DecimationMatrixNonPOT(D, K) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">
+ deci_matrix = DecimationMatrixNonPOT(D, K)
+
+ This function generate a matrix holding the possible decimation factors
+ at each stage due to the overall decimation factor 'D' and number of
+ decimation stages. The deciamtion factors are not constrained to be in a
+ Power-Of-Two 'POT' format. It designed for maximum 4 decimation stages,
+ i.e. K = [1 2 3 4].
+
+   D:  Decimation factor 'overall factor'
+   K:  Number of decimation stages
+   
+   deci_matrix:    Matrix of available decimation factor alternatives
+
+ Example:
+ D = 48, K = 3 -&gt; deci_matrix = [[12 2 2]; [6 4 2]]</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="BubbleSort.html" class="code" title="function x = BubbleSort(x)">BubbleSort</a>	</li><li><a href="CheckForInteger.html" class="code" title="function flag = CheckForInteger(x)">CheckForInteger</a>	</li><li><a href="EvenOdd.html" class="code" title="function flag = EvenOdd(x)">EvenOdd</a>	</li><li><a href="Factorize.html" class="code" title="function o = Factorize(x)">Factorize</a>	</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href=".././bFunctions/TuneK.html" class="code" title="function data = TuneK(varargin)">TuneK</a>	</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function Dmatrix = DecimationMatrixNonPOT(D, K)</a>
+0002 
+0003 <span class="comment">%</span>
+0004 <span class="comment">% deci_matrix = DecimationMatrixNonPOT(D, K)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% This function generate a matrix holding the possible decimation factors</span>
+0007 <span class="comment">% at each stage due to the overall decimation factor 'D' and number of</span>
+0008 <span class="comment">% decimation stages. The deciamtion factors are not constrained to be in a</span>
+0009 <span class="comment">% Power-Of-Two 'POT' format. It designed for maximum 4 decimation stages,</span>
+0010 <span class="comment">% i.e. K = [1 2 3 4].</span>
+0011 <span class="comment">%</span>
+0012 <span class="comment">%   D:  Decimation factor 'overall factor'</span>
+0013 <span class="comment">%   K:  Number of decimation stages</span>
+0014 <span class="comment">%</span>
+0015 <span class="comment">%   deci_matrix:    Matrix of available decimation factor alternatives</span>
+0016 <span class="comment">%</span>
+0017 <span class="comment">% Example:</span>
+0018 <span class="comment">% D = 48, K = 3 -&gt; deci_matrix = [[12 2 2]; [6 4 2]]</span>
+0019 
+0020 v = <a href="Factorize.html" class="code" title="function o = Factorize(x)">Factorize</a>(D);
+0021 EvenOddFlag = <a href="EvenOdd.html" class="code" title="function flag = EvenOdd(x)">EvenOdd</a>(D);
+0022 deci_matrix = [];
+0023 
+0024 <span class="keyword">if</span> EvenOddFlag == 0,
+0025     fprintf(<span class="string">'WARNING: The decimation factor is an Odd number\n'</span>);
+0026     fprintf(<span class="string">'         The decimation factors might be not acceptable\n'</span>);
+0027 <span class="keyword">end</span>
+0028 
+0029 <span class="keyword">if</span> isnan(v),
+0030     fprintf(<span class="string">'Non-acceptable decimation factor\n'</span>);
+0031 <span class="keyword">elseif</span> length(v) &lt;= 2,
+0032     fprintf(<span class="string">'WARNING: This decimation factor cannot hold more than 2 stages\n'</span>);
+0033     Dmatrix = [D/2 2];
+0034     <span class="keyword">if</span> K == 1,
+0035         deci_matrix = D;
+0036     <span class="keyword">else</span> 
+0037         <span class="keyword">if</span> <a href="CheckForInteger.html" class="code" title="function flag = CheckForInteger(x)">CheckForInteger</a>(D/2) == 1,
+0038             deci_matrix = [D/2 2];
+0039         <span class="keyword">else</span>
+0040             deci_matrix = v;
+0041         <span class="keyword">end</span>
+0042     <span class="keyword">end</span>    
+0043 <span class="keyword">else</span>
+0044     
+0045     <span class="keyword">if</span> K==3 &amp; <a href="CheckForInteger.html" class="code" title="function flag = CheckForInteger(x)">CheckForInteger</a>(sqrt(D)) == 0 &amp; (length(v) &gt; (fix(log2(D)/2))),
+0046         rows=fix(log2(D)/2);
+0047     <span class="keyword">elseif</span> K &gt;= 3 &amp; (length(v) == (fix(log2(D)/2)-1)),
+0048         rows=fix(log2(D)/2)-2;
+0049     <span class="keyword">else</span>
+0050         rows=fix(log2(D)/2)-1;
+0051     <span class="keyword">end</span>
+0052     columns = K;
+0053     matrix = zeros(rows, columns);
+0054     matrix(:,1) = 2;
+0055 
+0056     <span class="keyword">if</span> K == 1,
+0057         deci_matrix = D;
+0058     <span class="keyword">elseif</span> K==2,
+0059         deci_matrix = [2 D/2];
+0060     <span class="keyword">elseif</span> K == 3,    
+0061        <span class="keyword">for</span> j = 1 : rows,
+0062              <span class="keyword">for</span> i = 2 : K,
+0063                 <span class="keyword">if</span> i == K,
+0064                     matrix(j,i) = prod(v(i+j-1:length(v)));                
+0065                     deci_matrix(j,:) = <a href="BubbleSort.html" class="code" title="function x = BubbleSort(x)">BubbleSort</a>(matrix(j,:));
+0066                 <span class="keyword">else</span>
+0067                     matrix(j,i) = prod(v(i:i+j-1));
+0068                     deci_matrix(j,:) = <a href="BubbleSort.html" class="code" title="function x = BubbleSort(x)">BubbleSort</a>(matrix(j,:));
+0069                 <span class="keyword">end</span>
+0070             <span class="keyword">end</span>
+0071        <span class="keyword">end</span>
+0072     <span class="keyword">else</span>     
+0073        <span class="keyword">for</span> j = 1 : rows,
+0074              <span class="keyword">for</span> i = 2 : K,
+0075                 <span class="keyword">if</span> i == K,
+0076                     matrix(j,i) = prod(v(i+j-1:length(v)));                
+0077                     deci_matrix(j,:) = <a href="BubbleSort.html" class="code" title="function x = BubbleSort(x)">BubbleSort</a>(matrix(j,:));
+0078                 <span class="keyword">elseif</span> i == K-1,
+0079                     matrix(j,i) = v(i+j-1);
+0080                     deci_matrix(j,:) = <a href="BubbleSort.html" class="code" title="function x = BubbleSort(x)">BubbleSort</a>(matrix(j,:));                
+0081                 <span class="keyword">else</span>
+0082                     matrix(j,i) = prod(v(i:i+j-1));
+0083                     deci_matrix(j,:) = <a href="BubbleSort.html" class="code" title="function x = BubbleSort(x)">BubbleSort</a>(matrix(j,:));
+0084                 <span class="keyword">end</span>
+0085             <span class="keyword">end</span>
+0086         <span class="keyword">end</span>
+0087     <span class="keyword">end</span> 
+0088     
+0089     matrixd = fliplr(deci_matrix);
+0090     
+0091     <span class="keyword">if</span> K &gt; 2,
+0092         <span class="keyword">if</span> matrixd(rows,columns) == 1,
+0093             Dmatrix = matrixd(1:rows-1,1:columns);
+0094         <span class="keyword">else</span>
+0095             Dmatrix = matrixd;
+0096         <span class="keyword">end</span>
+0097     <span class="keyword">else</span>
+0098         Dmatrix = matrixd;
+0099     <span class="keyword">end</span>
+0100 
+0101 <span class="keyword">end</span>
+0102 
+0103</pre></div>
+<hr><address>Generated on Tue 17-Apr-2012 15:26:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

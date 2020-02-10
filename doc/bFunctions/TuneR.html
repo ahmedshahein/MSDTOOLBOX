@@ -1,0 +1,277 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of TuneR</title>
+  <meta name="keywords" content="TuneR">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- # bFunctions -->
+<h1>TuneR
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function data = TuneR(varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">
+ accepted_ripples = TuneR(rp_tune, rc_tune, Fs, OSR, delta_F, Fsignal, K, M, Filter_Type, sdm_data, IBN_penalty, print_IBN, print_Sig) 
+
+ This fnction used for the ripples tunning purpose.
+
+   rp_tune                 Passband ripples factor vector
+   rc_tune                 Cutoff band ripples factor vector
+   Fs:                     Sampling frequency
+   OSR:                    Over Sampling Ratio
+   delta_F:                Transition bandwidth = (fc-fp)/fc
+   K:                     Number of decimation stages
+   M:                     Decimation vector for decimation factor at each stage
+   Filter_Type:            Regular FIR or Multi-band FIR -&gt; 'rg' or 'mb'
+   sdm_data:               Array holds the Delta-Sigma Modulator data
+
+   diff:                   The variations in IBN before and after
+                           decimation using the filters with the selected
+                           ripples factor in the 3rd columns, while the
+                           first column holds the passband ripples value
+                           and the second column hold the cutoff band
+                           ripples value
+
+ P.S. This is wrapper function, i.e. to mask the inputs without order</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href=".././aFunctions/FilterAndDownsample.html" class="code" title="function [deci_data IBN Sig] = FilterAndDownsample(filter_coefficients, filter_lengths, sdm_data, Fs, OSR, Fsignal, K, M, plot_psd, export_IBN, print_IBN, print_Sig)">FilterAndDownsample</a>	</li><li><a href="DecimationFilters.html" class="code" title="function data = DecimationFilters(varargin)">DecimationFilters</a>	</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function data = ChkArgs(args,ni)</a></li><li><a href="#_sub2" class="code">function data = ChkString(data,args,string,type,err_msg)</a></li><li><a href="#_sub3" class="code">function data = ChkStruct(data)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function data = TuneR(varargin)</a>
+0002 
+0003 <span class="comment">%</span>
+0004 <span class="comment">% accepted_ripples = TuneR(rp_tune, rc_tune, Fs, OSR, delta_F, Fsignal, K, M, Filter_Type, sdm_data, IBN_penalty, print_IBN, print_Sig)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% This fnction used for the ripples tunning purpose.</span>
+0007 <span class="comment">%</span>
+0008 <span class="comment">%   rp_tune                 Passband ripples factor vector</span>
+0009 <span class="comment">%   rc_tune                 Cutoff band ripples factor vector</span>
+0010 <span class="comment">%   Fs:                     Sampling frequency</span>
+0011 <span class="comment">%   OSR:                    Over Sampling Ratio</span>
+0012 <span class="comment">%   delta_F:                Transition bandwidth = (fc-fp)/fc</span>
+0013 <span class="comment">%   K:                     Number of decimation stages</span>
+0014 <span class="comment">%   M:                     Decimation vector for decimation factor at each stage</span>
+0015 <span class="comment">%   Filter_Type:            Regular FIR or Multi-band FIR -&gt; 'rg' or 'mb'</span>
+0016 <span class="comment">%   sdm_data:               Array holds the Delta-Sigma Modulator data</span>
+0017 <span class="comment">%</span>
+0018 <span class="comment">%   diff:                   The variations in IBN before and after</span>
+0019 <span class="comment">%                           decimation using the filters with the selected</span>
+0020 <span class="comment">%                           ripples factor in the 3rd columns, while the</span>
+0021 <span class="comment">%                           first column holds the passband ripples value</span>
+0022 <span class="comment">%                           and the second column hold the cutoff band</span>
+0023 <span class="comment">%                           ripples value</span>
+0024 <span class="comment">%</span>
+0025 <span class="comment">% P.S. This is wrapper function, i.e. to mask the inputs without order</span>
+0026 
+0027 <span class="comment">% Check &amp; assigning arguments</span>
+0028 <span class="comment">% Number of input arguments</span>
+0029 nin     = nargin;
+0030 <span class="comment">% Checking arguments</span>
+0031 data    = <a href="#_sub1" class="code" title="subfunction data = ChkArgs(args,ni)">ChkArgs</a>(varargin,nin);
+0032 
+0033 <span class="comment">%filter_accepted_ripples=[];</span>
+0034 k=1;
+0035 
+0036 <span class="keyword">if</span> nargin &gt; 12,
+0037     printIBN = data.print_IBN;
+0038     printSig = data.print_Sig;
+0039 <span class="keyword">else</span>
+0040     printIBN = 0;
+0041     printSig = 0;
+0042 <span class="keyword">end</span>
+0043 
+0044 <span class="keyword">for</span> i = 1 : length(data.rpb_tune),
+0045     rp = data.rpb_tune(i);
+0046     <span class="keyword">for</span> j = 1 : length(data.rsb_tune),
+0047         rc = data.rsb_tune(j);
+0048         dataDecimationFilters = <a href="DecimationFilters.html" class="code" title="function data = DecimationFilters(varargin)">DecimationFilters</a>(<span class="string">'Fs'</span>, data.Fs, <span class="string">'OSR'</span>, data.OSR, <span class="string">'K'</span>, data.K, <span class="string">'M'</span>, data.M, <span class="string">'delta_F'</span>, data.delta_F, <span class="string">'rp'</span>, rp, <span class="string">'rc'</span>, rc, <span class="string">'Filter_Type'</span>, data.Filter_Type, <span class="string">'mb_type'</span>, data.mb_type, <span class="string">'Pass_Stop'</span>, data.Pass_Stop, <span class="string">'plot_filter_response'</span>, false);
+0049         [deci_data IBN(k,:) Sig(k,:)] = <a href=".././aFunctions/FilterAndDownsample.html" class="code" title="function [deci_data IBN Sig] = FilterAndDownsample(filter_coefficients, filter_lengths, sdm_data, Fs, OSR, Fsignal, K, M, plot_psd, export_IBN, print_IBN, print_Sig)">FilterAndDownsample</a>(dataDecimationFilters.filter_coefficients, dataDecimationFilters.filter_lengths, data.sdm_data, data.Fs, data.OSR, data.Fsignal, data.K, data.M, 0, 1, printIBN, printSig);
+0050         ripples(k,:)=[rp rc];
+0051         k=k+1;
+0052     <span class="keyword">end</span>
+0053 <span class="keyword">end</span>
+0054 
+0055 <span class="keyword">for</span> l = 1 : size(IBN,1),
+0056     diff(l,3) = IBN(l, 1) - IBN(l,2); <span class="comment">% before - after;</span>
+0057     diff(l,1:2) = ripples(l,:);
+0058 <span class="keyword">end</span> 
+0059 
+0060 n = 1;
+0061 data.accepted_ripples = [];
+0062 <span class="keyword">for</span> m = 1 : size(IBN,1), 
+0063     <span class="keyword">if</span> diff(m,3) &gt;= data.IBN_penalty &amp; diff(m,3) &lt; 0,
+0064         data.accepted_ripples(n,:) = diff(m,:);
+0065         n = n + 1;
+0066     <span class="keyword">end</span>
+0067 <span class="keyword">end</span>
+0068 
+0069 <span class="comment">%%%%%%%%%%%%%%%</span>
+0070 <span class="comment">% Subfunction %</span>
+0071 <span class="comment">%%%%%%%%%%%%%%%</span>
+0072 <span class="comment">% This function is implemented by:</span>
+0073 <span class="comment">%   Micheal Maurer</span>
+0074 <span class="comment">% and modified by:</span>
+0075 <span class="comment">%   Ahmed Shahein</span>
+0076 
+0077 <a name="_sub1" href="#_subfunctions" class="code">function data = ChkArgs(args,ni)</a>
+0078 
+0079 <span class="keyword">if</span> ni == 0
+0080     error(<span class="string">'Syntax error::at least one argument required'</span>);
+0081 <span class="keyword">else</span>
+0082     data.yout = args{1};
+0083 <span class="keyword">end</span>
+0084 
+0085 <span class="keyword">if</span> ni==2
+0086     <span class="keyword">if</span> isa(args{2},<span class="string">'struct'</span>)
+0087         data        = args{2};
+0088         data.yout   = args{1};
+0089     <span class="keyword">else</span>
+0090         error(<span class="string">'Syntax error:command called with two arguments, where non of them is a structure'</span>)
+0091     <span class="keyword">end</span>
+0092 <span class="keyword">else</span>
+0093     <span class="comment">% Check syntax {sdm_data, 'str_1',var_1,'str_2',var_2,...}</span>
+0094     <span class="keyword">for</span> i = 1:2:ni-1
+0095         <span class="keyword">if</span> ~isa(args{i},<span class="string">'char'</span>)
+0096             error(<span class="string">'Syntax error::string assumed'</span>)
+0097         <span class="keyword">end</span>
+0098     <span class="keyword">end</span>
+0099     
+0100     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'sdm_data'</span>,<span class="string">'numeric'</span>,<span class="string">'sdm bit-stream is not numeric'</span>);
+0101     
+0102     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'rpb_tune'</span>,<span class="string">'numeric'</span>,<span class="string">'passband ripples is not numeric'</span>);
+0103     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'rsb_tune'</span>,<span class="string">'numeric'</span>,<span class="string">'stopband ripples is not numeric'</span>);
+0104     
+0105     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'Fs'</span>,<span class="string">'numeric'</span>,<span class="string">'sample frequency is not numeric'</span>);
+0106     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'OSR'</span>,<span class="string">'numeric'</span>,<span class="string">'OSR is not numeric'</span>);
+0107     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'delta_F'</span>,<span class="string">'numeric'</span>,<span class="string">'transition band is not numeric'</span>);
+0108     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'Fsignal'</span>,<span class="string">'numeric'</span>,<span class="string">'signal frequency is not a number'</span>);
+0109     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'K'</span>,<span class="string">'numeric'</span>,<span class="string">'number of decimation stages is not a number'</span>);
+0110     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'M'</span>,<span class="string">'numeric'</span>,<span class="string">'decimation factor is not a number'</span>);
+0111     
+0112     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'Filter_Type'</span>,<span class="string">'char'</span>,<span class="string">'filter architecture type is not a string'</span>);
+0113     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'mb_type'</span>,<span class="string">'char'</span>,<span class="string">'multi-band filter type is not a string'</span>);
+0114     
+0115     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'IBN_penalty'</span>,<span class="string">'numeric'</span>,<span class="string">'penalty in IBN is not a number'</span>);
+0116     
+0117     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'Pass_Stop'</span>,<span class="string">'logical'</span>,<span class="string">'boolean expression assumed'</span>);
+0118     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'print_IBN'</span>,<span class="string">'logical'</span>,<span class="string">'boolean expression assumed'</span>);
+0119     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'print_Sig'</span>,<span class="string">'logical'</span>,<span class="string">'boolean expression assumed'</span>);
+0120 <span class="keyword">end</span>
+0121 
+0122 data = <a href="#_sub3" class="code" title="subfunction data = ChkStruct(data)">ChkStruct</a>(data);
+0123 
+0124 <span class="comment">%%%%%%%%%%%%%%%</span>
+0125 <span class="comment">% Subfunction %</span>
+0126 <span class="comment">%%%%%%%%%%%%%%%</span>
+0127 <span class="comment">% This function is implemented by:</span>
+0128 <span class="comment">%   Micheal Maurer</span>
+0129 <span class="comment">% and modified by:</span>
+0130 <span class="comment">%   Ahmed Shahein</span>
+0131 
+0132 <a name="_sub2" href="#_subfunctions" class="code">function data = ChkString(data,args,string,type,err_msg)</a>
+0133 
+0134 pos = find(strcmp(args,string),1);
+0135 <span class="keyword">if</span> isempty(pos)
+0136 <span class="keyword">elseif</span> ~isa(args{pos+1},type) || (strcmp(<span class="string">'numeric'</span>,type) &amp;&amp; (any(isnan(args{pos+1})) || any(isinf(args{pos+1}))))
+0137     error([<span class="string">'Syntax error::'</span>,err_msg])
+0138 <span class="keyword">else</span>
+0139     data.(string)=args{pos+1};
+0140 <span class="keyword">end</span>
+0141 
+0142 <span class="comment">%%%%%%%%%%%%%%%</span>
+0143 <span class="comment">% Subfunction %</span>
+0144 <span class="comment">%%%%%%%%%%%%%%%</span>
+0145 <span class="comment">% This function is implemented by:</span>
+0146 <span class="comment">%   Micheal Maurer</span>
+0147 <span class="comment">% and modified by:</span>
+0148 <span class="comment">%   Ahmed Shahein</span>
+0149 
+0150 <a name="_sub3" href="#_subfunctions" class="code">function data = ChkStruct(data)</a>
+0151 
+0152 data.info.txt        = <span class="string">'\n'</span>;
+0153 <span class="keyword">if</span> ~isfield(data,<span class="string">'Fs'</span>)
+0154     data.Fs = 1;
+0155 <span class="keyword">end</span>
+0156 
+0157 <span class="keyword">if</span> ~isfield(data,<span class="string">'OSR'</span>)
+0158     data.OSR = 1;
+0159 <span class="keyword">end</span>
+0160 
+0161 <span class="keyword">if</span> ~isfield(data,<span class="string">'delta_F'</span>)
+0162     data.delta_F = 0.15;
+0163 <span class="keyword">end</span>
+0164 
+0165 <span class="keyword">if</span> ~isfield(data,<span class="string">'K'</span>)
+0166     error(<span class="string">'Decimation stages is not define'</span>);
+0167 <span class="keyword">end</span>
+0168 
+0169 <span class="keyword">if</span> ~isfield(data,<span class="string">'M'</span>)
+0170      error(<span class="string">'Decimation factor is not define'</span>);
+0171 <span class="keyword">end</span>
+0172 
+0173 <span class="keyword">if</span> ~isfield(data,<span class="string">'rpb_tune'</span>)
+0174     data.rpb_tune = [0.1 0.01 0.001 0.0001];
+0175 <span class="keyword">end</span>
+0176 
+0177 <span class="keyword">if</span> ~isfield(data,<span class="string">'rsb_tune'</span>)
+0178     data.rsb_tune = [0.1 0.01 0.001 0.0001];
+0179 <span class="keyword">end</span>
+0180 
+0181 <span class="keyword">if</span> ~isfield(data,<span class="string">'Filter_Type'</span>)
+0182     data.Filter_Type =<span class="string">'rg'</span>;
+0183 <span class="keyword">end</span>
+0184 
+0185 <span class="keyword">if</span> ~isfield(data,<span class="string">'mb_type'</span>)
+0186     data.mb_type =<span class="string">'WB'</span>;
+0187 <span class="keyword">end</span>
+0188 
+0189 <span class="keyword">if</span> ~isfield(data,<span class="string">'Pass_Stop'</span>)
+0190     data.Pass_Stop = true;
+0191 <span class="keyword">end</span>
+0192 
+0193 <span class="keyword">if</span> ~isfield(data,<span class="string">'print_IBN'</span>)
+0194     data.print_IBN = false;
+0195 <span class="keyword">end</span>
+0196 
+0197 <span class="keyword">if</span> ~isfield(data,<span class="string">'print_Sig'</span>)
+0198     data.print_Sig = false;
+0199 <span class="keyword">end</span>
+0200 
+0201 <span class="keyword">if</span> ~isfield(data,<span class="string">'verbose'</span>)
+0202     data.info.verbose = false;
+0203 <span class="keyword">else</span>
+0204     data.info.verbose = data.verbose;
+0205     data = rmfield(data,<span class="string">'verbose'</span>);
+0206 <span class="keyword">end</span>
+0207 <span class="comment">% EOF</span></pre></div>
+<hr><address>Generated on Tue 17-Apr-2012 15:26:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

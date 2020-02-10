@@ -1,0 +1,167 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of NormalizedCoefficients</title>
+  <meta name="keywords" content="NormalizedCoefficients">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- # bFunctions -->
+<h1>NormalizedCoefficients
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function  data = NormalizedCoefficients(varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">
+ normalized_filter_coeff = NormalizedCoefficients(filter_coefficients, filter_lengths, n, K)
+
+ This function is just for looping the 'normalized_coeff' function for
+ each deciamtion stage from the multistage deciamtion filters, i.e. K
+ times.
+
+ P.S. This is wrapper function, i.e. to mask the inputs without order</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href=".././aFunctions/NormalizedCoeff.html" class="code" title="function ncoeff = NormalizedCoeff(coeff, n, c)">NormalizedCoeff</a>	ncoeff = NormalizedCoeff(coeff, n, c)</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function data = ChkArgs(args,ni)</a></li><li><a href="#_sub2" class="code">function data = ChkString(data,args,string,type,err_msg)</a></li><li><a href="#_sub3" class="code">function data = ChkStruct(data)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function  data = NormalizedCoefficients(varargin)</a>
+0002 
+0003 <span class="comment">%</span>
+0004 <span class="comment">% normalized_filter_coeff = NormalizedCoefficients(filter_coefficients, filter_lengths, n, K)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% This function is just for looping the 'normalized_coeff' function for</span>
+0007 <span class="comment">% each deciamtion stage from the multistage deciamtion filters, i.e. K</span>
+0008 <span class="comment">% times.</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">% P.S. This is wrapper function, i.e. to mask the inputs without order</span>
+0011 
+0012 <span class="comment">% Check &amp; assigning arguments</span>
+0013 <span class="comment">% Number of input arguments</span>
+0014 nin     = nargin;
+0015 <span class="comment">% Checking arguments</span>
+0016 data    = <a href="#_sub1" class="code" title="subfunction data = ChkArgs(args,ni)">ChkArgs</a>(varargin,nin);
+0017 
+0018 <span class="keyword">for</span> i = 1 : data.K,
+0019     data.normalized_filter_coeff(i,1:data.filter_lengths(i)) = <a href=".././aFunctions/NormalizedCoeff.html" class="code" title="function ncoeff = NormalizedCoeff(coeff, n, c)">NormalizedCoeff</a>(data.filter_coefficients(i,1:data.filter_lengths(i)), data.Q(i));
+0020 <span class="keyword">end</span>
+0021 
+0022 <span class="comment">%%%%%%%%%%%%%%%</span>
+0023 <span class="comment">% Subfunction %</span>
+0024 <span class="comment">%%%%%%%%%%%%%%%</span>
+0025 <span class="comment">% This function is implemented by:</span>
+0026 <span class="comment">%   Micheal Maurer</span>
+0027 <span class="comment">% and modified by:</span>
+0028 <span class="comment">%   Ahmed Shahein</span>
+0029 
+0030 <a name="_sub1" href="#_subfunctions" class="code">function data = ChkArgs(args,ni)</a>
+0031 
+0032 <span class="keyword">if</span> ni == 0
+0033     error(<span class="string">'Syntax error::at least one argument required'</span>);
+0034 <span class="keyword">else</span>
+0035     data.yout = args{1};
+0036 <span class="keyword">end</span>
+0037 
+0038 <span class="keyword">if</span> ni==2
+0039     <span class="keyword">if</span> isa(args{2},<span class="string">'struct'</span>)
+0040         data        = args{2};
+0041         data.yout   = args{1};
+0042     <span class="keyword">else</span>
+0043         error(<span class="string">'Syntax error:command called with two arguments, where non of them is a structure'</span>)
+0044     <span class="keyword">end</span>
+0045 <span class="keyword">else</span>
+0046     <span class="comment">% Check syntax {'str_1',var_1,'str_2',var_2,...}</span>
+0047     <span class="keyword">for</span> i = 1:2:ni-1
+0048         <span class="keyword">if</span> ~isa(args{i},<span class="string">'char'</span>)
+0049             error(<span class="string">'Syntax error::string assumed'</span>)
+0050         <span class="keyword">end</span>
+0051     <span class="keyword">end</span>
+0052        
+0053     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'filter_coefficients'</span>,<span class="string">'numeric'</span>,<span class="string">'filter coefficeints is not numeric'</span>);
+0054     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'filter_lengths'</span>,<span class="string">'numeric'</span>,<span class="string">'filter lengths is not numeric'</span>);
+0055     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'K'</span>,<span class="string">'numeric'</span>,<span class="string">'number of decimation stages is not a number'</span>);
+0056     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'Q'</span>,<span class="string">'numeric'</span>,<span class="string">'quantization bit-width is not a number'</span>);  
+0057     
+0058 <span class="keyword">end</span>
+0059 
+0060 data = <a href="#_sub3" class="code" title="subfunction data = ChkStruct(data)">ChkStruct</a>(data);
+0061 
+0062 <span class="comment">%%%%%%%%%%%%%%%</span>
+0063 <span class="comment">% Subfunction %</span>
+0064 <span class="comment">%%%%%%%%%%%%%%%</span>
+0065 <span class="comment">% This function is implemented by:</span>
+0066 <span class="comment">%   Micheal Maurer</span>
+0067 <span class="comment">% and modified by:</span>
+0068 <span class="comment">%   Ahmed Shahein</span>
+0069 
+0070 <a name="_sub2" href="#_subfunctions" class="code">function data = ChkString(data,args,string,type,err_msg)</a>
+0071 
+0072 pos = find(strcmp(args,string),1);
+0073 <span class="keyword">if</span> isempty(pos)
+0074 <span class="keyword">elseif</span> ~isa(args{pos+1},type) 
+0075     error([<span class="string">'Syntax error::'</span>,err_msg])
+0076 <span class="keyword">else</span>
+0077     data.(string)=args{pos+1};
+0078 <span class="keyword">end</span>
+0079 
+0080 <span class="comment">%%%%%%%%%%%%%%%</span>
+0081 <span class="comment">% Subfunction %</span>
+0082 <span class="comment">%%%%%%%%%%%%%%%</span>
+0083 <span class="comment">% This function is implemented by:</span>
+0084 <span class="comment">%   Micheal Maurer</span>
+0085 <span class="comment">% and modified by:</span>
+0086 <span class="comment">%   Ahmed Shahein</span>
+0087 
+0088 <a name="_sub3" href="#_subfunctions" class="code">function data = ChkStruct(data)</a>
+0089 
+0090 data.info.txt        = <span class="string">'\n'</span>;
+0091 <span class="keyword">if</span> ~isfield(data,<span class="string">'filter_coefficients'</span>)
+0092     error(<span class="string">'Filter coefficients is not define'</span>);
+0093 <span class="keyword">end</span>
+0094 
+0095 <span class="keyword">if</span> ~isfield(data,<span class="string">'filter_lengths'</span>)
+0096     error(<span class="string">'Filter lengths is not define'</span>);
+0097 <span class="keyword">end</span>
+0098 
+0099 <span class="keyword">if</span> ~isfield(data,<span class="string">'K'</span>)
+0100     error(<span class="string">'Number of decimation stages is not define'</span>);
+0101 <span class="keyword">end</span>
+0102 
+0103 <span class="keyword">if</span> ~isfield(data,<span class="string">'Q'</span>)
+0104     error(<span class="string">'Quantization bit-width is not define'</span>);
+0105 <span class="keyword">end</span>
+0106 
+0107 <span class="keyword">if</span> ~isfield(data,<span class="string">'verbose'</span>)
+0108     data.info.verbose = false;
+0109 <span class="keyword">else</span>
+0110     data.info.verbose = data.verbose;
+0111     data = rmfield(data,<span class="string">'verbose'</span>);
+0112 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Tue 17-Apr-2012 15:26:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

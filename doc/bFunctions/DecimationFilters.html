@@ -1,0 +1,412 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of DecimationFilters</title>
+  <meta name="keywords" content="DecimationFilters">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- # bFunctions -->
+<h1>DecimationFilters
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function data = DecimationFilters(varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">
+ [filter_coefficients, filter_lengths] = DecimationFilters(Fs, OSR, K, M, delta_F, rp, rc, Filter_Type, plot_filter_response, mb_taps_lengths)
+
+ This function design and export LOWPASS decimator filters coefficients, for both
+ regular and multi-band structures.
+
+   Fs:                    Sampling frequency 
+   OSR:                   Over Sampling Ration
+   K:                     Number of decimation stages
+   M:                     Decimation vector for decimation factor at each stage
+   delta_F:               Decimator transtion bandwidth
+   rp:                    Pass-band ripples
+   rc:                    Cutoff-band ripples
+   Filter_Type:           Regular FIR or Multi-band FIR -&gt; 'rg' or 'mb'
+   plot_filter_response:  Flag to plot filter frequency response or not -&gt; 1 or 0
+   mb_type:               Define the type of the multi-band filter,
+                          whether narrowband 'NB' or wideband 'WB'
+   mb_taps_lengths:       Vector holds the filter lengths for multi-band filters 
+
+   filter_coefficients:   Decimator filter coefficients for eac decimation stage, it is 
+                          in a form of matrix, each row represents a decimation stages
+   filter_lengths:        Vector hold the length of each decimation filter stage
+
+ P.S. This is wrapper function, i.e. to mask the inputs without order</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href=".././aFunctions/MultiBandFilters.html" class="code" title="function [f, a, w, lengths] = MultiBandFilters(K, M, OSR, type)">MultiBandFilters</a>	</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="TuneR.html" class="code" title="function data = TuneR(varargin)">TuneR</a>	</li><li><a href="cDecimationFilters.html" class="code" title="function data = cDecimationFilters(varargin)">cDecimationFilters</a>	</li></ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function data = ChkArgs(args,ni)</a></li><li><a href="#_sub2" class="code">function data = ChkString(data,args,string,type,err_msg)</a></li><li><a href="#_sub3" class="code">function data = ChkStruct(data)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function data = DecimationFilters(varargin)</a>
+0002 
+0003 <span class="comment">%</span>
+0004 <span class="comment">% [filter_coefficients, filter_lengths] = DecimationFilters(Fs, OSR, K, M, delta_F, rp, rc, Filter_Type, plot_filter_response, mb_taps_lengths)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% This function design and export LOWPASS decimator filters coefficients, for both</span>
+0007 <span class="comment">% regular and multi-band structures.</span>
+0008 <span class="comment">%</span>
+0009 <span class="comment">%   Fs:                    Sampling frequency</span>
+0010 <span class="comment">%   OSR:                   Over Sampling Ration</span>
+0011 <span class="comment">%   K:                     Number of decimation stages</span>
+0012 <span class="comment">%   M:                     Decimation vector for decimation factor at each stage</span>
+0013 <span class="comment">%   delta_F:               Decimator transtion bandwidth</span>
+0014 <span class="comment">%   rp:                    Pass-band ripples</span>
+0015 <span class="comment">%   rc:                    Cutoff-band ripples</span>
+0016 <span class="comment">%   Filter_Type:           Regular FIR or Multi-band FIR -&gt; 'rg' or 'mb'</span>
+0017 <span class="comment">%   plot_filter_response:  Flag to plot filter frequency response or not -&gt; 1 or 0</span>
+0018 <span class="comment">%   mb_type:               Define the type of the multi-band filter,</span>
+0019 <span class="comment">%                          whether narrowband 'NB' or wideband 'WB'</span>
+0020 <span class="comment">%   mb_taps_lengths:       Vector holds the filter lengths for multi-band filters</span>
+0021 <span class="comment">%</span>
+0022 <span class="comment">%   filter_coefficients:   Decimator filter coefficients for eac decimation stage, it is</span>
+0023 <span class="comment">%                          in a form of matrix, each row represents a decimation stages</span>
+0024 <span class="comment">%   filter_lengths:        Vector hold the length of each decimation filter stage</span>
+0025 <span class="comment">%</span>
+0026 <span class="comment">% P.S. This is wrapper function, i.e. to mask the inputs without order</span>
+0027 
+0028 <span class="comment">% Check &amp; assigning arguments</span>
+0029 <span class="comment">% Number of input arguments</span>
+0030 nin     = nargin;
+0031 <span class="comment">% Checking arguments</span>
+0032 data    = <a href="#_sub1" class="code" title="subfunction data = ChkArgs(args,ni)">ChkArgs</a>(varargin,nin);
+0033 
+0034 <span class="comment">% Intialization for some variablles in the function</span>
+0035     wi = [];
+0036     filter_lengths_rg = [];
+0037     filter_coefficients_rg = [];
+0038     
+0039 <span class="comment">% Turn off the warning of Divide by zero</span>
+0040 
+0041     1/0;
+0042     [msg, msgid] = lastwarn;
+0043     s = warning(<span class="string">'off'</span>, msgid);
+0044 
+0045 <span class="comment">% Some default values in the case of the absence of some parameters or for</span>
+0046 <span class="comment">% intial testing</span>
+0047 
+0048     <span class="keyword">if</span> nargin == 4,
+0049         data.delta_F         = 0.1;
+0050         data.rp              = 0.001;
+0051         data.rc              = 0.00001;
+0052         data.Filter_Type     = <span class="string">'rg'</span>;
+0053     <span class="keyword">end</span>
+0054 
+0055 <span class="comment">% Design decimator filters in a regular FIR structure</span>
+0056     
+0057     Fb = data.Fs/(2*data.OSR);
+0058     
+0059     <span class="keyword">if</span> data.Pass_Stop == false,
+0060         <span class="comment">% If this flag is set to zero/false</span>
+0061         <span class="comment">% The passband frequency corner is set to</span>
+0062         <span class="comment">% baseband frequency, i.e.</span>
+0063         <span class="comment">% Fp = Fb = Fs/(2OSR)</span>
+0064         <span class="keyword">for</span> i = 1 : data.K,
+0065             <span class="keyword">if</span> i &lt; data.K,
+0066                 Fp(i) = Fb; 
+0067                 Fc(i) = data.Fs/prod(data.M(1:i)) - Fb/(1-data.delta_F); 
+0068                 Rp(i) = data.rp/data.K;
+0069                 Rc(i) = data.rc;
+0070             <span class="keyword">else</span>
+0071                 Fp(i) = Fb; 
+0072                 Fc(i) = Fb/(1-data.delta_F);
+0073                 Rp(i) = data.rp/data.K;
+0074                 Rc(i) = data.rc;  
+0075             <span class="keyword">end</span>
+0076         <span class="keyword">end</span>
+0077         
+0078     <span class="keyword">else</span>
+0079         <span class="comment">% If this flag is set to zero/false</span>
+0080         <span class="comment">% The stopband frequency corner is set to</span>
+0081         <span class="comment">% baseband frequency, i.e.</span>
+0082         <span class="comment">% Fs = Fb = Fs/(2OSR)</span>
+0083         <span class="keyword">for</span> i = 1 : data.K,
+0084             Fp(i) = Fb*(1-data.delta_F); 
+0085             Fc(i) = data.Fs/prod(data.M(1:i)) - Fb; 
+0086             Rp(i) = data.rp/data.K;
+0087             Rc(i) = data.rc;
+0088         <span class="keyword">end</span>    
+0089         
+0090     <span class="keyword">end</span>
+0091 
+0092     filter = struct(<span class="string">'n'</span>, [], <span class="string">'fo'</span>, [], <span class="string">'ao'</span>, [], <span class="string">'w'</span>, []);
+0093 
+0094     filter_stages_rg=struct(<span class="string">'b'</span>, []);
+0095 
+0096     <span class="keyword">for</span> j = 1 : data.K,
+0097         <span class="keyword">if</span> j == 1,
+0098             [filter(j).n, filter(j).fo, filter(j).ao, filter(j).w] = remezord([Fp(j) Fc(j)], [1 0], [Rp(j) Rc(j)], data.Fs);
+0099             <span class="keyword">if</span> nargin == 11 &amp; mb_taps_lengths ~= 0,            
+0100                 filter_stages_rg(j).b  = remez(mb_taps_lengths(j), filter(j).fo, filter(j).ao, filter(j).w);
+0101             <span class="keyword">else</span>
+0102                 filter_stages_rg(j).b  = remez(filter(j).n, filter(j).fo, filter(j).ao, filter(j).w);
+0103             <span class="keyword">end</span>
+0104         <span class="keyword">else</span>
+0105             [filter(j).n, filter(j).fo, filter(j).ao, filter(j).w] = remezord([Fp(j) Fc(j)], [1 0], [Rp(j) Rc(j)], data.Fs/prod(data.M(1:j-1)));
+0106             <span class="keyword">if</span> nargin == 11 &amp; mb_taps_lengths ~= 0,            
+0107                 filter_stages_rg(j).b  = remez(mb_taps_lengths(j), filter(j).fo, filter(j).ao, filter(j).w);
+0108             <span class="keyword">else</span>
+0109                 filter_stages_rg(j).b  = remez(filter(j).n, filter(j).fo, filter(j).ao, filter(j).w);
+0110             <span class="keyword">end</span>
+0111         <span class="keyword">end</span>
+0112             filter_lengths_rg(j) = length(filter_stages_rg(j).b);
+0113             filter_coefficients_rg(j, 1:filter_lengths_rg(j))=filter_stages_rg(j).b;
+0114     <span class="keyword">end</span>
+0115 
+0116 <span class="comment">% Design decimator filters in a multi-band FIR structure</span>
+0117 <span class="keyword">if</span> nargin &gt;= 10 &amp; data.mb_type ~= 0,
+0118     [f, a, w, lengths] = <a href=".././aFunctions/MultiBandFilters.html" class="code" title="function [f, a, w, lengths] = MultiBandFilters(K, M, OSR, type)">MultiBandFilters</a>(data.K, data.M, data.OSR, data.mb_type);
+0119 <span class="keyword">else</span>
+0120     [f, a, w, lengths] = <a href=".././aFunctions/MultiBandFilters.html" class="code" title="function [f, a, w, lengths] = MultiBandFilters(K, M, OSR, type)">MultiBandFilters</a>(data.K, data.M, data.OSR, <span class="string">'WB'</span>);
+0121 <span class="keyword">end</span>
+0122 
+0123 <span class="comment">% Designing Half-band stage</span>
+0124     N = 25;    <span class="comment">% Filter Length</span>
+0125     P = (N+1)/2; <span class="comment">% Filter Peak</span>
+0126     Filter_Coeff_Length = [1:N];
+0127     Filter_Coeff_Length = Filter_Coeff_Length - P;
+0128     HB_Sinc_Filter = sin(pi*Filter_Coeff_Length/2)./(pi*Filter_Coeff_Length);
+0129     HB_Sinc_Filter(P)=.5;
+0130     thewin=window(@hamming, N);
+0131     HB_Window = HB_Sinc_Filter .* thewin';
+0132     HB_Filter = HB_Window/sum(HB_Window);
+0133     HB_stage = zerooutcoeff(HB_Filter);
+0134 
+0135 
+0136     <span class="keyword">if</span> nargin == 11 &amp; mb_taps_lengths ~= 0,
+0137         n = mb_taps_lengths;
+0138     <span class="keyword">else</span>
+0139         n = filter_lengths_rg;
+0140     <span class="keyword">end</span>
+0141     
+0142     filter_stages_mb=struct(<span class="string">'b'</span>, []);
+0143 
+0144     <span class="keyword">for</span> o = 1 : data.K,
+0145        <span class="keyword">if</span> o == data.K,
+0146             filter_lengths_mb(o) = length(HB_stage);
+0147             filter_coefficients_mb(o, 1:filter_lengths_mb(o))=HB_stage;
+0148        <span class="keyword">else</span>
+0149            <span class="keyword">if</span> mod(lengths(o), 2) == 0,
+0150                 filter_stages_mb(o).b = remez(n(o), f(o,1:lengths(o)), a(o,1:lengths(o)), w(o,1:lengths(o)/2));
+0151                 filter_lengths_mb(o) = length(filter_stages_mb(o).b);
+0152                 filter_coefficients_mb(o, 1:filter_lengths_mb(o))=filter_stages_mb(o).b;
+0153            <span class="keyword">else</span>
+0154                 filter_stages_mb(o).b = remez(n(o), f(o,1:lengths(o)-1), a(o,1:lengths(o)-1), w(o,1:(lengths(o)-1)/2));
+0155                 filter_lengths_mb(o) = length(filter_stages_mb(o).b);
+0156                 filter_coefficients_mb(o, 1:filter_lengths_mb(o))=filter_stages_mb(o).b;
+0157            <span class="keyword">end</span>
+0158        <span class="keyword">end</span>
+0159     <span class="keyword">end</span>
+0160     
+0161     <span class="keyword">if</span> data.K == 1 &amp; data.Filter_Type == <span class="string">'mb'</span>,
+0162         fprintf(<span class="string">'WARNING: You cannot use Multi-band structure for single decimation stage \n'</span>);
+0163     <span class="keyword">end</span>
+0164 
+0165 <span class="comment">% Output filter length and coefficients due to the the specified structure</span>
+0166 
+0167      <span class="keyword">if</span> data.Filter_Type == <span class="string">'rg'</span>,
+0168          data.filter_coefficients    = filter_coefficients_rg;
+0169          data.filter_lengths         = filter_lengths_rg;     
+0170      <span class="keyword">elseif</span> data.Filter_Type == <span class="string">'mb'</span> &amp; data.K ~= 1,
+0171          data.filter_coefficients   = filter_coefficients_mb;
+0172          data.filter_lengths         = filter_lengths_mb; 
+0173      <span class="keyword">else</span>    
+0174         data.filter_lengths = nan;
+0175         data.filter_coefficients = nan;
+0176         fprintf(<span class="string">'Not a Recognized Filter Type \n'</span>);   
+0177      <span class="keyword">end</span>
+0178 
+0179 <span class="comment">% Plotting decimator filters frequency response option</span>
+0180 
+0181     <span class="keyword">if</span> nargin ~= 4 &amp; data.Filter_Type == <span class="string">'mb'</span> &amp; data.K == 1,
+0182         <span class="keyword">return</span>
+0183     <span class="keyword">else</span>
+0184         <span class="keyword">if</span> data.plot_filter_response == 1,
+0185             filter_response=struct(<span class="string">'h'</span>, [], <span class="string">'f'</span>, []);
+0186             FIG = figure(<span class="string">'Name'</span>, <span class="string">'Filter Frequency Response'</span>, <span class="string">'NumberTitle'</span> , <span class="string">'off'</span>);
+0187             <span class="keyword">for</span> p = 1 : data.K,
+0188                 <span class="keyword">if</span> p == 1,
+0189                     [filter_response(p).h, filter_response(p).f] = freqz(data.filter_coefficients(p,1:data.filter_lengths(p)),[1],2^14,data.Fs);
+0190                     subplot(data.K,1,p)
+0191                     plot(filter_response(p).f, 20*log10(abs(filter_response(p).h)));
+0192                     xlabel(<span class="string">'Frequency - Hz'</span>);
+0193                     ylabel(<span class="string">'Amplitude - dB'</span>);
+0194                     grid on;
+0195                     title([<span class="string">'Filter Response for Stage - '</span>, num2str(p)]);
+0196                 <span class="keyword">else</span>
+0197                     [filter_response(p).h, filter_response(p).f] = freqz(data.filter_coefficients(p,1:data.filter_lengths(p)),[1],2^14,data.Fs/(prod(data.M(1:p-1))));
+0198                     subplot(data.K,1,p)
+0199                     plot(filter_response(p).f, 20*log10(abs(filter_response(p).h)));
+0200                     xlabel(<span class="string">'Frequency - Hz'</span>);
+0201                     ylabel(<span class="string">'Amplitude - dB'</span>);
+0202                     grid on;
+0203                     title([<span class="string">'Filter Response for Stage - '</span>, num2str(p)]);
+0204                 <span class="keyword">end</span>
+0205             <span class="keyword">end</span>
+0206         <span class="keyword">end</span>
+0207     <span class="keyword">end</span>
+0208     
+0209 <span class="comment">%%%%%%%%%%%%%%%</span>
+0210 <span class="comment">% Subfunction %</span>
+0211 <span class="comment">%%%%%%%%%%%%%%%</span>
+0212 <span class="comment">% This function is implemented by:</span>
+0213 <span class="comment">%   Micheal Maurer</span>
+0214 <span class="comment">% and modified by:</span>
+0215 <span class="comment">%   Ahmed Shahein</span>
+0216 
+0217 <a name="_sub1" href="#_subfunctions" class="code">function data = ChkArgs(args,ni)</a>
+0218 
+0219 <span class="keyword">if</span> ni == 0
+0220     error(<span class="string">'Syntax error::at least one argument required'</span>);
+0221 <span class="keyword">else</span>
+0222     data.yout = args{1};
+0223 <span class="keyword">end</span>
+0224 
+0225 <span class="keyword">if</span> ni==2
+0226     <span class="keyword">if</span> isa(args{2},<span class="string">'struct'</span>)
+0227         data        = args{2};
+0228         data.yout   = args{1};
+0229     <span class="keyword">else</span>
+0230         error(<span class="string">'Syntax error:command called with two arguments, where non of them is a structure'</span>)
+0231     <span class="keyword">end</span>
+0232 <span class="keyword">else</span>
+0233     <span class="comment">% Check syntax {sdm_data, 'str_1',var_1,'str_2',var_2,...}</span>
+0234     <span class="keyword">for</span> i = 1:2:ni-1
+0235         <span class="keyword">if</span> ~isa(args{i},<span class="string">'char'</span>)
+0236             error(<span class="string">'Syntax error::string assumed'</span>)
+0237         <span class="keyword">end</span>
+0238     <span class="keyword">end</span>
+0239        
+0240     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'Fs'</span>,<span class="string">'numeric'</span>,<span class="string">'sample frequency is not numeric'</span>);
+0241     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'OSR'</span>,<span class="string">'numeric'</span>,<span class="string">'OSR is not numeric'</span>);
+0242     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'K'</span>,<span class="string">'numeric'</span>,<span class="string">'number of decimation stages is not a number'</span>);
+0243     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'M'</span>,<span class="string">'numeric'</span>,<span class="string">'decimation factor is not a number'</span>);  
+0244     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'delta_F'</span>,<span class="string">'numeric'</span>,<span class="string">'transition band is not numeric'</span>);
+0245     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'rp'</span>,<span class="string">'numeric'</span>,<span class="string">'passband ripples is not numeric'</span>);
+0246     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'rc'</span>,<span class="string">'numeric'</span>,<span class="string">'stopband ripples is not numeric'</span>);   
+0247     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'mb_taps_lengths'</span>,<span class="string">'numeric'</span>,<span class="string">''</span>);
+0248     
+0249     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'Filter_Type'</span>,<span class="string">'char'</span>,<span class="string">'filter architecture type is not a string'</span>);
+0250     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'mb_type'</span>,<span class="string">'char'</span>,<span class="string">'multi-band filter type is not a string'</span>);
+0251     
+0252     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'Pass_Stop'</span>,<span class="string">'logical'</span>,<span class="string">'boolean expression assumed'</span>);
+0253     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'plot_filter_response'</span>,<span class="string">'logical'</span>,<span class="string">'boolean expression assumed'</span>);
+0254     
+0255 <span class="keyword">end</span>
+0256 
+0257 data = <a href="#_sub3" class="code" title="subfunction data = ChkStruct(data)">ChkStruct</a>(data);
+0258 
+0259 <span class="comment">%%%%%%%%%%%%%%%</span>
+0260 <span class="comment">% Subfunction %</span>
+0261 <span class="comment">%%%%%%%%%%%%%%%</span>
+0262 <span class="comment">% This function is implemented by:</span>
+0263 <span class="comment">%   Micheal Maurer</span>
+0264 <span class="comment">% and modified by:</span>
+0265 <span class="comment">%   Ahmed Shahein</span>
+0266 
+0267 <a name="_sub2" href="#_subfunctions" class="code">function data = ChkString(data,args,string,type,err_msg)</a>
+0268 
+0269 pos = find(strcmp(args,string),1);
+0270 <span class="keyword">if</span> isempty(pos)
+0271 <span class="keyword">elseif</span> ~isa(args{pos+1},type) || (strcmp(<span class="string">'numeric'</span>,type) &amp;&amp; (any(isnan(args{pos+1})) || any(isinf(args{pos+1}))))
+0272     error([<span class="string">'Syntax error::'</span>,err_msg])
+0273 <span class="keyword">else</span>
+0274     data.(string)=args{pos+1};
+0275 <span class="keyword">end</span>
+0276 
+0277 <span class="comment">%%%%%%%%%%%%%%%</span>
+0278 <span class="comment">% Subfunction %</span>
+0279 <span class="comment">%%%%%%%%%%%%%%%</span>
+0280 <span class="comment">% This function is implemented by:</span>
+0281 <span class="comment">%   Micheal Maurer</span>
+0282 <span class="comment">% and modified by:</span>
+0283 <span class="comment">%   Ahmed Shahein</span>
+0284 
+0285 <a name="_sub3" href="#_subfunctions" class="code">function data = ChkStruct(data)</a>
+0286 
+0287 data.info.txt        = <span class="string">'\n'</span>;
+0288 <span class="keyword">if</span> ~isfield(data,<span class="string">'Fs'</span>)
+0289     data.Fs = 1;
+0290 <span class="keyword">end</span>
+0291 
+0292 <span class="keyword">if</span> ~isfield(data,<span class="string">'OSR'</span>)
+0293     data.OSR = 1;
+0294 <span class="keyword">end</span>
+0295 
+0296 <span class="keyword">if</span> ~isfield(data,<span class="string">'delta_F'</span>)
+0297     data.delta_F = 0.15;
+0298 <span class="keyword">end</span>
+0299 
+0300 <span class="keyword">if</span> ~isfield(data,<span class="string">'K'</span>)
+0301     error(<span class="string">'Decimation stages is not define'</span>);
+0302 <span class="keyword">end</span>
+0303 
+0304 <span class="keyword">if</span> ~isfield(data,<span class="string">'M'</span>)
+0305      error(<span class="string">'Decimation factor is not define'</span>);
+0306 <span class="keyword">end</span>
+0307 
+0308 <span class="keyword">if</span> ~isfield(data,<span class="string">'rp'</span>)
+0309     data.rp = 0.01;
+0310 <span class="keyword">end</span>
+0311 
+0312 <span class="keyword">if</span> ~isfield(data,<span class="string">'rc'</span>)
+0313     data.rc = 0.001;
+0314 <span class="keyword">end</span>
+0315 
+0316 <span class="keyword">if</span> ~isfield(data,<span class="string">'Filter_Type'</span>)
+0317     data.Filter_Type =<span class="string">'rg'</span>;
+0318 <span class="keyword">end</span>
+0319 
+0320 <span class="keyword">if</span> ~isfield(data,<span class="string">'mb_type'</span>)
+0321     data.mb_type =<span class="string">'WB'</span>;
+0322 <span class="keyword">end</span>
+0323 
+0324 <span class="keyword">if</span> ~isfield(data,<span class="string">'Pass_Stop'</span>)
+0325     data.Pass_Stop = true;
+0326 <span class="keyword">end</span>
+0327 
+0328 <span class="keyword">if</span> ~isfield(data,<span class="string">'plot_filter_response'</span>)
+0329     data.print_IBN = false;
+0330 <span class="keyword">end</span>
+0331 
+0332 <span class="keyword">if</span> ~isfield(data,<span class="string">'print_Sig'</span>)
+0333     data.print_Sig = false;
+0334 <span class="keyword">end</span>
+0335 
+0336 <span class="keyword">if</span> ~isfield(data,<span class="string">'verbose'</span>)
+0337     data.info.verbose = false;
+0338 <span class="keyword">else</span>
+0339     data.info.verbose = data.verbose;
+0340     data = rmfield(data,<span class="string">'verbose'</span>);
+0341 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Tue 17-Apr-2012 15:26:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

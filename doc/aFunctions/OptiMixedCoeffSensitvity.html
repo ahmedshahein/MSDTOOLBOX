@@ -1,0 +1,154 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of OptiMixedCoeffSensitvity</title>
+  <meta name="keywords" content="OptiMixedCoeffSensitvity">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- # aFunctions -->
+<h1>OptiMixedCoeffSensitvity
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [test_filter_coeff_sensitvity count_indices]= OptiMixedCoeffSensitvity(coeff, Q, Sn, Sn_value, N_NPT, Fs) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"></pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="ElementsOfVector.html" class="code" title="function e = ElementsOfVector(v)">ElementsOfVector</a>	</li><li><a href="NPT.html" class="code" title="function out = NPT(in, Nb, n)">NPT</a>	out = NPT(in, N, n)</li><li><a href="NormalizedCoeff.html" class="code" title="function ncoeff = NormalizedCoeff(coeff, n, c)">NormalizedCoeff</a>	ncoeff = NormalizedCoeff(coeff, n, c)</li><li><a href="SPT.html" class="code" title="function y = SPT(x)">SPT</a>	</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [test_filter_coeff_sensitvity count_indices]= OptiMixedCoeffSensitvity(coeff, Q, Sn, Sn_value, N_NPT, Fs)</a>
+0002 
+0003 filter_coeff_indices            = [];
+0004 count_indices                   = 0;
+0005 
+0006 <span class="comment">% Defining the location of the coefficients to be rounded to NPT factors</span>
+0007 <span class="comment">% for each sensitvity factor, and the number of coefficients to be changed.</span>
+0008 <span class="keyword">if</span> Sn_value == 0,
+0009 
+0010     Sn_elements = <a href="ElementsOfVector.html" class="code" title="function e = ElementsOfVector(v)">ElementsOfVector</a>(Sn);
+0011 
+0012     <span class="keyword">for</span> i = 1 : length(Sn_elements), 
+0013         Sn_max = Sn_elements(i);
+0014         count = 0;
+0015         <span class="keyword">for</span> j = 1 : length(coeff),
+0016             <span class="keyword">if</span> Sn(j)&gt;0 &amp; Sn(j)&lt;=Sn_max,
+0017                 filter_coeff_indices(i,j) = j;
+0018                 count_indices(i) = count + 1;
+0019             <span class="keyword">else</span>
+0020                 filter_coeff_indices(i,j) = 0;
+0021             <span class="keyword">end</span>
+0022         <span class="keyword">end</span>
+0023     <span class="keyword">end</span>
+0024 
+0025 <span class="keyword">else</span>
+0026 
+0027     Sn_max = Sn_value;
+0028     
+0029     <span class="keyword">for</span> k = 1 : length(coeff),
+0030         <span class="keyword">if</span> Sn(k)&gt;0 &amp; Sn(k)&lt;=Sn_max,
+0031             filter_coeff_indices(k) = k;
+0032             count_indices = count_indices + 1;
+0033         <span class="keyword">else</span>
+0034             filter_coeff_indices(k) = 0;
+0035         <span class="keyword">end</span>
+0036     <span class="keyword">end</span>
+0037 <span class="keyword">end</span>
+0038 
+0039 <span class="comment">% Rounding the low sensitive coefficients to its NPT factor, whether for N =</span>
+0040 <span class="comment">% 1, 2, or 3.</span>
+0041 <span class="keyword">if</span> Sn_value ~= 0,
+0042     
+0043     <span class="keyword">for</span> l = 1 : length(coeff),
+0044         <span class="keyword">if</span> N_NPT == 1,
+0045             <span class="keyword">if</span> filter_coeff_indices(l) ~= 0,
+0046                 test_filter_coeff_sensitvity(l)  = <a href="SPT.html" class="code" title="function y = SPT(x)">SPT</a>(<a href="NormalizedCoeff.html" class="code" title="function ncoeff = NormalizedCoeff(coeff, n, c)">NormalizedCoeff</a>(coeff, Q, coeff(l)));
+0047             <span class="keyword">else</span>
+0048                 test_filter_coeff_sensitvity(l)  = <a href="NormalizedCoeff.html" class="code" title="function ncoeff = NormalizedCoeff(coeff, n, c)">NormalizedCoeff</a>(coeff, Q, coeff(l));
+0049             <span class="keyword">end</span>
+0050         <span class="keyword">elseif</span> N_NPT == 2,
+0051             <span class="keyword">if</span> filter_coeff_indices(l) ~= 0,
+0052                 test_filter_coeff_sensitvity(l)  = <a href="NPT.html" class="code" title="function out = NPT(in, Nb, n)">NPT</a>(<a href="NormalizedCoeff.html" class="code" title="function ncoeff = NormalizedCoeff(coeff, n, c)">NormalizedCoeff</a>(coeff, Q, coeff(l)),N_NPT,Q);
+0053             <span class="keyword">else</span>
+0054                 test_filter_coeff_sensitvity(l)  = <a href="NormalizedCoeff.html" class="code" title="function ncoeff = NormalizedCoeff(coeff, n, c)">NormalizedCoeff</a>(coeff, Q, coeff(l));
+0055             <span class="keyword">end</span>
+0056         <span class="keyword">elseif</span> N_NPT == 3,
+0057             <span class="keyword">if</span> filter_coeff_indices(l) ~= 0,
+0058                 test_filter_coeff_sensitvity(l)  = <a href="NPT.html" class="code" title="function out = NPT(in, Nb, n)">NPT</a>(<a href="NormalizedCoeff.html" class="code" title="function ncoeff = NormalizedCoeff(coeff, n, c)">NormalizedCoeff</a>(coeff, Q, coeff(l)),N_NPT,Q);
+0059             <span class="keyword">else</span>
+0060                 test_filter_coeff_sensitvity(l)  = <a href="NormalizedCoeff.html" class="code" title="function ncoeff = NormalizedCoeff(coeff, n, c)">NormalizedCoeff</a>(coeff, Q, coeff(l));
+0061             <span class="keyword">end</span>
+0062         <span class="keyword">end</span>        
+0063     <span class="keyword">end</span>
+0064     
+0065 <span class="keyword">else</span>
+0066 
+0067     [rows columns] = size(filter_coeff_indices);
+0068     
+0069     <span class="keyword">for</span> m = 1 : rows,
+0070         <span class="keyword">for</span> n = 1 : columns,
+0071             <span class="keyword">if</span> N_NPT == 1,
+0072                 <span class="keyword">if</span> filter_coeff_indices(m,n) ~= 0,
+0073                     test_filter_coeff_sensitvity(m,n)  = <a href="SPT.html" class="code" title="function y = SPT(x)">SPT</a>(<a href="NormalizedCoeff.html" class="code" title="function ncoeff = NormalizedCoeff(coeff, n, c)">NormalizedCoeff</a>(coeff, Q, coeff(n)));
+0074                 <span class="keyword">else</span>
+0075                     test_filter_coeff_sensitvity(m,n)  = <a href="NormalizedCoeff.html" class="code" title="function ncoeff = NormalizedCoeff(coeff, n, c)">NormalizedCoeff</a>(coeff, Q, coeff(n));
+0076                 <span class="keyword">end</span>
+0077             <span class="keyword">elseif</span> N_NPT == 2,
+0078                 <span class="keyword">if</span> filter_coeff_indices(m,n) ~= 0,
+0079                     test_filter_coeff_sensitvity(m,n)  = <a href="NPT.html" class="code" title="function out = NPT(in, Nb, n)">NPT</a>(<a href="NormalizedCoeff.html" class="code" title="function ncoeff = NormalizedCoeff(coeff, n, c)">NormalizedCoeff</a>(coeff, Q, coeff(n)),N_NPT,Q);
+0080                 <span class="keyword">else</span>
+0081                     test_filter_coeff_sensitvity(m,n)  = <a href="NormalizedCoeff.html" class="code" title="function ncoeff = NormalizedCoeff(coeff, n, c)">NormalizedCoeff</a>(coeff, Q, coeff(n));
+0082                 <span class="keyword">end</span>
+0083             <span class="keyword">elseif</span> N_NPT == 3,
+0084                 <span class="keyword">if</span> filter_coeff_indices(m,n) ~= 0,
+0085                     test_filter_coeff_sensitvity(m,n)  = <a href="NPT.html" class="code" title="function out = NPT(in, Nb, n)">NPT</a>(<a href="NormalizedCoeff.html" class="code" title="function ncoeff = NormalizedCoeff(coeff, n, c)">NormalizedCoeff</a>(coeff, Q, coeff(n)),N_NPT,Q);
+0086                 <span class="keyword">else</span>
+0087                     test_filter_coeff_sensitvity(m,n)  = <a href="NormalizedCoeff.html" class="code" title="function ncoeff = NormalizedCoeff(coeff, n, c)">NormalizedCoeff</a>(coeff, Q, coeff(n));
+0088                 <span class="keyword">end</span>
+0089             <span class="keyword">end</span>             
+0090         <span class="keyword">end</span>
+0091     <span class="keyword">end</span>
+0092     
+0093 <span class="keyword">end</span>
+0094 
+0095 <span class="comment">% FIG = figure('Name', 'Sensitvity of Filter Coefficients', 'NumberTitle' , 'off');</span>
+0096 <span class="comment">% plot(abs(Sn));</span>
+0097 <span class="comment">% grid on</span>
+0098 <span class="comment">% xlabel('Filter Coefficeints');</span>
+0099 <span class="comment">% ylabel('Coefficients Sensitvity');</span>
+0100 <span class="comment">% title('Sensitvity of Filter Coefficients');</span>
+0101 <span class="comment">%</span>
+0102 <span class="comment">% FIG = figure('Name', 'Filters Frequency Responses', 'NumberTitle' , 'off');</span>
+0103 <span class="comment">% filters = test_filter_coeff_sensitvity;</span>
+0104 <span class="comment">% plot_freq_response(filters, Fs);</span>
+0105 <span class="comment">% title('Filter Response');</span>
+0106 <span class="comment">% legend('Normalized Coeff.','NPT Coeff.','Mixed Coeff.');</span>
+0107 
+0108 <span class="comment">% End</span></pre></div>
+<hr><address>Generated on Tue 17-Apr-2012 15:26:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of TuneK</title>
+  <meta name="keywords" content="TuneK">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- # bFunctions -->
+<h1>TuneK
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function data = TuneK(varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">
+ [min_RT min_stage] = TuneK(Fs, OSR, delta_F, rp, rc, Stages, plot_RT, POT) 
+
+ Thsi function estimate the computational effort due to number of
+ decimation stages. It exports the min computational effort, the
+ crossponding decimation value for each stage as a vector, and a matrix
+ holding the computational effort and the crossponding decimation factor
+ at each stage for all number of stage, i.e. the first column will hold
+ the computational effort value while the the rest will holds the
+ decimation value at each stage, since second column holds the value of
+ the first decimation stage, the third column holds the value of the
+ second decimation stage and so on.
+ 
+   Fs:                     Sampling frequency
+   OSR:                    Over Sampling Ratio
+   delta_F:                Transition bandwidth = (fc-fp)/fc
+   K:                      Number of decimation stages
+   M:                      Vector holds the decimation factor at each stage
+   rp:                     Pass-band ripples
+   rc:                     Cutoff-band ripples
+   Stages:                 Vector holds the number of stages to be tested
+   RT_Stages:              Matrix holds the computation effort and its
+                           crossponding decimation vector
+
+ P.S. This is wrapper function, i.e. to mask the inputs without order</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href=".././aFunctions/ComputationalEffort.html" class="code" title="function RT = ComputationalEffort(Fs, OSR, delta_F, K, M, rp, rc, print_RT)">ComputationalEffort</a>	</li><li><a href=".././aFunctions/DecimationMatrix.html" class="code" title="function m = DecimationMatrix(M,Stages)">DecimationMatrix</a>	</li><li><a href=".././aFunctions/DecimationMatrixNonPOT.html" class="code" title="function Dmatrix = DecimationMatrixNonPOT(D, K)">DecimationMatrixNonPOT</a>	</li><li><a href=".././aFunctions/Factorize.html" class="code" title="function o = Factorize(x)">Factorize</a>	</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function data = ChkArgs(args,ni)</a></li><li><a href="#_sub2" class="code">function data = ChkString(data,args,string,type,err_msg)</a></li><li><a href="#_sub3" class="code">function data = ChkStruct(data)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function data = TuneK(varargin)</a>
+0002 
+0003 <span class="comment">%</span>
+0004 <span class="comment">% [min_RT min_stage] = TuneK(Fs, OSR, delta_F, rp, rc, Stages, plot_RT, POT)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% Thsi function estimate the computational effort due to number of</span>
+0007 <span class="comment">% decimation stages. It exports the min computational effort, the</span>
+0008 <span class="comment">% crossponding decimation value for each stage as a vector, and a matrix</span>
+0009 <span class="comment">% holding the computational effort and the crossponding decimation factor</span>
+0010 <span class="comment">% at each stage for all number of stage, i.e. the first column will hold</span>
+0011 <span class="comment">% the computational effort value while the the rest will holds the</span>
+0012 <span class="comment">% decimation value at each stage, since second column holds the value of</span>
+0013 <span class="comment">% the first decimation stage, the third column holds the value of the</span>
+0014 <span class="comment">% second decimation stage and so on.</span>
+0015 <span class="comment">%</span>
+0016 <span class="comment">%   Fs:                     Sampling frequency</span>
+0017 <span class="comment">%   OSR:                    Over Sampling Ratio</span>
+0018 <span class="comment">%   delta_F:                Transition bandwidth = (fc-fp)/fc</span>
+0019 <span class="comment">%   K:                      Number of decimation stages</span>
+0020 <span class="comment">%   M:                      Vector holds the decimation factor at each stage</span>
+0021 <span class="comment">%   rp:                     Pass-band ripples</span>
+0022 <span class="comment">%   rc:                     Cutoff-band ripples</span>
+0023 <span class="comment">%   Stages:                 Vector holds the number of stages to be tested</span>
+0024 <span class="comment">%   RT_Stages:              Matrix holds the computation effort and its</span>
+0025 <span class="comment">%                           crossponding decimation vector</span>
+0026 <span class="comment">%</span>
+0027 <span class="comment">% P.S. This is wrapper function, i.e. to mask the inputs without order</span>
+0028 
+0029 <span class="comment">% Check &amp; assigning arguments</span>
+0030 <span class="comment">% Number of input arguments</span>
+0031 nin     = nargin;
+0032 <span class="comment">% Checking arguments</span>
+0033 data    = <a href="#_sub1" class="code" title="subfunction data = ChkArgs(args,ni)">ChkArgs</a>(varargin,nin);
+0034 
+0035 <span class="comment">% Internal variables intialization</span>
+0036 l=0;
+0037 RT=[];
+0038 depth=[];
+0039 width=[];
+0040 
+0041 v = <a href=".././aFunctions/Factorize.html" class="code" title="function o = Factorize(x)">Factorize</a>(data.OSR);
+0042 
+0043 <span class="keyword">if</span> length(v) &lt;= 2,
+0044     fprintf(<span class="string">'This decimation factor cannot hold more than 2 stages\n'</span>);
+0045     fprintf(<span class="string">'Please change Stages to 2 only\n'</span>);
+0046     data.min_RT = nan;
+0047     data.min_stage = nan;
+0048 <span class="keyword">end</span>    
+0049     decimation_matrices = struct(<span class="string">'matrix'</span>, [], <span class="string">'sizes'</span>, []);
+0050 
+0051     <span class="keyword">for</span> i = 1 : length(data.Stages),
+0052         <span class="keyword">if</span> data.POT == 1,
+0053             decimation_matrices(i).matrix = <a href=".././aFunctions/DecimationMatrix.html" class="code" title="function m = DecimationMatrix(M,Stages)">DecimationMatrix</a>(data.OSR,data.Stages(i));
+0054         <span class="keyword">else</span>
+0055             decimation_matrices(i).matrix = <a href=".././aFunctions/DecimationMatrixNonPOT.html" class="code" title="function Dmatrix = DecimationMatrixNonPOT(D, K)">DecimationMatrixNonPOT</a>(data.OSR,data.Stages(i));
+0056         <span class="keyword">end</span>
+0057         [depth(i) width(i)] = size(decimation_matrices(i).matrix);
+0058         decimation_matrices(i).sizes = depth(i);
+0059     <span class="keyword">end</span>
+0060 
+0061     computationaleffort = struct(<span class="string">'RT'</span>, [], <span class="string">'Stages'</span>, []);
+0062     l = 0;
+0063     <span class="keyword">for</span> j = 1 : length(data.Stages),
+0064         matrix = decimation_matrices(j).matrix;
+0065          <span class="keyword">for</span> k = 1 : depth(j),
+0066              l=l+1;
+0067              M = matrix(k,:);
+0068              RT(l) = <a href=".././aFunctions/ComputationalEffort.html" class="code" title="function RT = ComputationalEffort(Fs, OSR, delta_F, K, M, rp, rc, print_RT)">ComputationalEffort</a>(data.Fs, data.OSR, data.delta_F, data.Stages(j), M, data.rp, data.rc);
+0069              computationaleffort(l).RT = RT(l);
+0070              computationaleffort(l).Stages = M;
+0071          <span class="keyword">end</span>
+0072     <span class="keyword">end</span>
+0073 
+0074     data.min_RT = min(RT);
+0075     <span class="keyword">for</span> o = 1 : length(RT),
+0076         <span class="keyword">if</span> RT(o) == data.min_RT,
+0077             data.min_stage = computationaleffort(o).Stages;
+0078         <span class="keyword">end</span>
+0079     <span class="keyword">end</span>
+0080 
+0081     x=[1:sum(depth)];
+0082 
+0083     color = [<span class="string">'b'</span>, <span class="string">'r'</span>, <span class="string">'k'</span>, <span class="string">'g'</span>, <span class="string">'c'</span>, <span class="string">'y'</span>, <span class="string">'m'</span>];
+0084     StagesVector = [];
+0085     
+0086     <span class="keyword">if</span> data.plot_RT == 1,        
+0087         <span class="keyword">if</span> sum(x) &gt; 1,
+0088           FIG = figure(<span class="string">'Name'</span>, <span class="string">'Computational Effort'</span>, <span class="string">'NumberTitle'</span> , <span class="string">'off'</span>);
+0089             <span class="keyword">for</span> i = 1 : length(computationaleffort),    
+0090                 <span class="keyword">if</span> length(computationaleffort(i).Stages) == 2,
+0091                     clr = color(1);
+0092                     StagesVector(i) = 2;
+0093                 <span class="keyword">elseif</span> length(computationaleffort(i).Stages) == 3,
+0094                     clr = color(2);
+0095                     StagesVector(i) = 3;
+0096                 <span class="keyword">elseif</span> length(computationaleffort(i).Stages) == 4,
+0097                     clr = color(3);
+0098                     StagesVector(i) = 4;
+0099                 <span class="keyword">end</span>
+0100                     plot2stages = plot(0,0,color(1));
+0101                     plot3stages = plot(0,0,color(2));
+0102                     plot4stages = plot(0,0,color(3));
+0103                     bar(x(i), computationaleffort(i).RT,0.3,clr);
+0104                     hold on
+0105                     set(gca, <span class="string">'XTickLabel'</span>, <span class="string">'Stages'</span>)
+0106             <span class="keyword">end</span>
+0107                 ylabel(<span class="string">'RT - MADS'</span>);
+0108                 set(gca, <span class="string">'XTick'</span>, [1:sum(x)], <span class="string">'XTicklabel'</span>, []);
+0109                 legend([plot2stages,plot3stages,plot4stages], <span class="string">'2 Stages'</span>, <span class="string">'3 Stages'</span>, <span class="string">'4 Stages'</span>,2)
+0110         <span class="keyword">end</span>
+0111     <span class="keyword">end</span>
+0112     
+0113 <span class="comment">%%%%%%%%%%%%%%%</span>
+0114 <span class="comment">% Subfunction %</span>
+0115 <span class="comment">%%%%%%%%%%%%%%%</span>
+0116 <span class="comment">% This function is implemented by:</span>
+0117 <span class="comment">%   Micheal Maurer</span>
+0118 <span class="comment">% and modified by:</span>
+0119 <span class="comment">%   Ahmed Shahein</span>
+0120 
+0121 <a name="_sub1" href="#_subfunctions" class="code">function data = ChkArgs(args,ni)</a>
+0122 
+0123 <span class="keyword">if</span> ni == 0
+0124     error(<span class="string">'Syntax error::at least one argument required'</span>);
+0125 <span class="keyword">else</span>
+0126     data.yout = args{1};
+0127 <span class="keyword">end</span>
+0128 
+0129 <span class="keyword">if</span> ni==2
+0130     <span class="keyword">if</span> isa(args{2},<span class="string">'struct'</span>)
+0131         data        = args{2};
+0132         data.yout   = args{1};
+0133     <span class="keyword">else</span>
+0134         error(<span class="string">'Syntax error:command called with two arguments, where non of them is a structure'</span>)
+0135     <span class="keyword">end</span>
+0136 <span class="keyword">else</span>
+0137     <span class="comment">% Check syntax {'str_1',var_1,'str_2',var_2,...}</span>
+0138     <span class="keyword">for</span> i = 1:2:ni-1
+0139         <span class="keyword">if</span> ~isa(args{i},<span class="string">'char'</span>)
+0140             error(<span class="string">'Syntax error::string assumed'</span>)
+0141         <span class="keyword">end</span>
+0142     <span class="keyword">end</span>
+0143     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'Fs'</span>,<span class="string">'numeric'</span>,<span class="string">'sample frequency is not numeric'</span>);
+0144     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'OSR'</span>,<span class="string">'numeric'</span>,<span class="string">'OSR is not numeric'</span>);
+0145     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'delta_F'</span>,<span class="string">'numeric'</span>,<span class="string">'transition band is not numeric'</span>);
+0146     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'rp'</span>,<span class="string">'numeric'</span>,<span class="string">'passband ripples is not numeric'</span>);
+0147     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'rc'</span>,<span class="string">'numeric'</span>,<span class="string">'stopband ripples is not numeric'</span>);
+0148     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'Stages'</span>,<span class="string">'numeric'</span>,<span class="string">'norm fs is not vector of numeric'</span>);
+0149     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'plot_RT'</span>,<span class="string">'logical'</span>,<span class="string">'boolean expression assumed'</span>);
+0150     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'POT'</span>,<span class="string">'logical'</span>,<span class="string">'boolean expression assumed'</span>);
+0151 <span class="keyword">end</span>
+0152 
+0153 data = <a href="#_sub3" class="code" title="subfunction data = ChkStruct(data)">ChkStruct</a>(data);
+0154 
+0155 <span class="comment">%%%%%%%%%%%%%%%</span>
+0156 <span class="comment">% Subfunction %</span>
+0157 <span class="comment">%%%%%%%%%%%%%%%</span>
+0158 <span class="comment">% This function is implemented by:</span>
+0159 <span class="comment">%   Micheal Maurer</span>
+0160 <span class="comment">% and modified by:</span>
+0161 <span class="comment">%   Ahmed Shahein</span>
+0162 
+0163 <a name="_sub2" href="#_subfunctions" class="code">function data = ChkString(data,args,string,type,err_msg)</a>
+0164 
+0165 pos = find(strcmp(args,string),1);
+0166 <span class="keyword">if</span> isempty(pos)
+0167 <span class="keyword">elseif</span> ~isa(args{pos+1},type) || (strcmp(<span class="string">'numeric'</span>,type) &amp;&amp; (any(isnan(args{pos+1})) || any(isinf(args{pos+1}))))
+0168     error([<span class="string">'Syntax error::'</span>,err_msg])
+0169 <span class="keyword">else</span>
+0170     data.(string)=args{pos+1};
+0171 <span class="keyword">end</span>
+0172 
+0173 <span class="comment">%%%%%%%%%%%%%%%</span>
+0174 <span class="comment">% Subfunction %</span>
+0175 <span class="comment">%%%%%%%%%%%%%%%</span>
+0176 <span class="comment">% This function is implemented by:</span>
+0177 <span class="comment">%   Micheal Maurer</span>
+0178 <span class="comment">% and modified by:</span>
+0179 <span class="comment">%   Ahmed Shahein</span>
+0180 
+0181 <a name="_sub3" href="#_subfunctions" class="code">function data = ChkStruct(data)</a>
+0182 
+0183 data.info.txt        = <span class="string">'\n'</span>;
+0184 <span class="keyword">if</span> ~isfield(data,<span class="string">'Fs'</span>)
+0185     data.Fs = 1;
+0186 <span class="keyword">end</span>
+0187 
+0188 <span class="keyword">if</span> ~isfield(data,<span class="string">'OSR'</span>)
+0189     data.OSR = 1;
+0190 <span class="keyword">end</span>
+0191 
+0192 <span class="keyword">if</span> ~isfield(data,<span class="string">'delta_F'</span>)
+0193     data.delta_F = 0.15;
+0194 <span class="keyword">end</span>
+0195 
+0196 <span class="keyword">if</span> ~isfield(data,<span class="string">'rp'</span>)
+0197     data.rp = 0.01;
+0198 <span class="keyword">end</span>
+0199 
+0200 <span class="keyword">if</span> ~isfield(data,<span class="string">'rc'</span>)
+0201     data.rc = 0.001;
+0202 <span class="keyword">end</span>
+0203 
+0204 <span class="keyword">if</span> ~isfield(data,<span class="string">'Stages'</span>),
+0205     error(<span class="string">'Decimation stages is not define'</span>);
+0206 <span class="keyword">end</span>
+0207 
+0208 <span class="keyword">if</span> ~isfield(data,<span class="string">'plot_RT'</span>)
+0209     data.plot_RT = true;
+0210 <span class="keyword">end</span>
+0211 
+0212 <span class="keyword">if</span> ~isfield(data,<span class="string">'POT'</span>)
+0213     data.POT = true;
+0214 <span class="keyword">end</span>
+0215 
+0216 <span class="keyword">if</span> ~isfield(data,<span class="string">'verbose'</span>)
+0217     data.info.verbose = false;
+0218 <span class="keyword">else</span>
+0219     data.info.verbose = data.verbose;
+0220     data = rmfield(data,<span class="string">'verbose'</span>);
+0221 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Tue 17-Apr-2012 15:26:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

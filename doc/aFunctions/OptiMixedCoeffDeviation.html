@@ -1,0 +1,66 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of OptiMixedCoeffDeviation</title>
+  <meta name="keywords" content="OptiMixedCoeffDeviation">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- # aFunctions -->
+<h1>OptiMixedCoeffDeviation
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [mixed_coeff_matrix count] = OptiMixedCoeffDeviation(coeff, Q, Nb, deviation_values) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">
+ [mixed_coeff_matrix count] = OptiMixedCoeffDeviation(coeff, Q, deviation_values)
+
+ The function is just a loop iteration for the function titled
+ &quot;OptiMixedCoeff&quot;.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="OptiMixedCoeff.html" class="code" title="function [deviation_in_coeff norm_coeff mixed_coeff count] = OptiMixedCoeff(coeff, Q, Nb, deviation_value)">OptiMixedCoeff</a>	</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="TestOptiDeviation.html" class="code" title="function coeff_matrix = TestOptiDeviation(filter_coefficients, filter_lengths, Fs, OSR, Fsignal, K, M, Q, Nb, sdm_data, deviation_values)">TestOptiDeviation</a>	</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [mixed_coeff_matrix count] = OptiMixedCoeffDeviation(coeff, Q, Nb, deviation_values)</a>
+0002 
+0003 <span class="comment">%</span>
+0004 <span class="comment">% [mixed_coeff_matrix count] = OptiMixedCoeffDeviation(coeff, Q, deviation_values)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% The function is just a loop iteration for the function titled</span>
+0007 <span class="comment">% &quot;OptiMixedCoeff&quot;.</span>
+0008 
+0009 mixed_coeff_matrix = [];
+0010 
+0011     <span class="keyword">for</span> j = 1 : length(deviation_values),
+0012         deviation_value = deviation_values(j);
+0013         [deviation_in_coeff norm_coeff mixed_coeff(j,:) count(j)] = <a href="OptiMixedCoeff.html" class="code" title="function [deviation_in_coeff norm_coeff mixed_coeff count] = OptiMixedCoeff(coeff, Q, Nb, deviation_value)">OptiMixedCoeff</a>(coeff, Q, Nb, deviation_value);        
+0014         
+0015         mixed_coeff_matrix(j,:) = [deviation_value count(j) mixed_coeff(j,:)];
+0016     <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Tue 17-Apr-2012 15:26:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

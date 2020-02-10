@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of NormalizedCoeff</title>
+  <meta name="keywords" content="NormalizedCoeff">
+  <meta name="description" content="ncoeff = NormalizedCoeff(coeff, n, c)">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- # aFunctions -->
+<h1>NormalizedCoeff
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>ncoeff = NormalizedCoeff(coeff, n, c)</strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function ncoeff = NormalizedCoeff(coeff, n, c) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment"> ncoeff = NormalizedCoeff(coeff, n, c)
+ This function used to convert floating point format coefficients to
+ signed integers in 2's complement format, for hardware implementation.</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="FilterCoeffDeviation.html" class="code" title="function [deviation_in_coeff norm_coeff nptcoeff mixed_coeff count] = FilterCoeffDeviation(coeff, Q, N, deviation_value, Fs, plot_deviation, plot_freq)">FilterCoeffDeviation</a>	</li><li><a href="OptiMixedCoeff.html" class="code" title="function [deviation_in_coeff norm_coeff mixed_coeff count] = OptiMixedCoeff(coeff, Q, Nb, deviation_value)">OptiMixedCoeff</a>	</li><li><a href="OptiMixedCoeffSensitvity.html" class="code" title="function [test_filter_coeff_sensitvity count_indices]= OptiMixedCoeffSensitvity(coeff, Q, Sn, Sn_value, N_NPT, Fs)">OptiMixedCoeffSensitvity</a>	</li><li><a href="TestIBNforNormCoeffMatrix.html" class="code" title="function [IBN_without_norm IBN_norm] = TestIBNforNormCoeffMatrix(Fs, OSR, Fsignal, M, coeff_matrix, Q, data, Fs_stage)">TestIBNforNormCoeffMatrix</a>	</li><li><a href=".././bFunctions/NormalizedCoefficients.html" class="code" title="function  data = NormalizedCoefficients(varargin)">NormalizedCoefficients</a>	</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function ncoeff = NormalizedCoeff(coeff, n, c)</a>
+0002 
+0003 <span class="comment">% ncoeff = NormalizedCoeff(coeff, n, c)</span>
+0004 <span class="comment">% This function used to convert floating point format coefficients to</span>
+0005 <span class="comment">% signed integers in 2's complement format, for hardware implementation.</span>
+0006 
+0007 <span class="comment">%       coeff   : floating point coeff., which is the output from remez commands</span>
+0008 <span class="comment">%       n       : number of bits used to represent the data</span>
+0009 <span class="comment">%       c       : single coeff.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%       ncoeff  : scaled coefficients</span>
+0012 
+0013 <span class="keyword">if</span> nargin == 2,
+0014     max_value = 2^(n-1)-1;
+0015     ncoeff = round(coeff.*max_value);
+0016 <span class="keyword">else</span>
+0017     max_value = 2^(n-1)-1;
+0018     ncoeff = round(c*max_value);
+0019 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Tue 17-Apr-2012 15:26:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

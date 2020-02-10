@@ -1,0 +1,282 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of cDecimationFilters</title>
+  <meta name="keywords" content="cDecimationFilters">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- # bFunctions -->
+<h1>cDecimationFilters
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function data = cDecimationFilters(varargin) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">
+ data = cDecimationFilters(varargin)
+ This is a wrapper function for 'DecimationFilters' +
+ 'CascadedCICCompensationFilter' function. The main purpose is to choose
+ between a normal cascaded decimation filter (CIC = false) and cascaded
+ decimation filter with the first stage is a CIC filter (CIC = true).
+ The function inputs are given as:
+
+   Fs:                     Sampling frequency 
+   OSR:                    Over Sampling Ration
+   K:                      Number of decimation stages
+   M:                      Decimation vector for decimation factor at each stage
+   delta_F:                Decimator transtion bandwidth
+   rp:                     Pass-band ripples
+   rc:                     Cutoff-band ripples
+   Filter_Type:            Regular FIR or Multi-band FIR -&gt; 'rg' or 'mb'
+   plot_filter_response:   Flag to plot filter frequency response or not -&gt; 1 or 0
+   mb_type:                Define the type of the multi-band filter,
+                           whether narrowband 'NB' or wideband 'WB'
+   mb_taps_lengths:        Vector holds the filter lengths for multi-band filters 
+   CIC:                    Flag to set the first decimation stage to CIC
+                           filter (CIC = true) or not (CIC = false)
+   oSDM:                   Sigma-Delta modulator order, it is important
+                           for CIC filter order calculation
+   sdm_data:               Input stimuli data from prior SDM
+
+   filter_coefficients:    Decimator filter coefficients for eac decimation stage, it is 
+                           in a form of matrix, each row represents a decimation stages
+   filter_lengths:         Vector hold the length of each decimation filter stage
+   DataOut:                Output filtered data from the CIC filter
+   Hcascaded:              CIC+Compensation transfer function</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href=".././aFunctions/CascadedCICCompensationFilter.html" class="code" title="function [DataOut Hcascaded] = CascadedCICCompensationFilter(M, R, N, Fs, Data)">CascadedCICCompensationFilter</a>	</li><li><a href="DecimationFilters.html" class="code" title="function data = DecimationFilters(varargin)">DecimationFilters</a>	</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function data = ChkArgs(args,ni)</a></li><li><a href="#_sub2" class="code">function data = ChkString(data,args,string,type,err_msg)</a></li><li><a href="#_sub3" class="code">function data = ChkStruct(data)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function data = cDecimationFilters(varargin)</a>
+0002 
+0003 <span class="comment">%</span>
+0004 <span class="comment">% data = cDecimationFilters(varargin)</span>
+0005 <span class="comment">% This is a wrapper function for 'DecimationFilters' +</span>
+0006 <span class="comment">% 'CascadedCICCompensationFilter' function. The main purpose is to choose</span>
+0007 <span class="comment">% between a normal cascaded decimation filter (CIC = false) and cascaded</span>
+0008 <span class="comment">% decimation filter with the first stage is a CIC filter (CIC = true).</span>
+0009 <span class="comment">% The function inputs are given as:</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%   Fs:                     Sampling frequency</span>
+0012 <span class="comment">%   OSR:                    Over Sampling Ration</span>
+0013 <span class="comment">%   K:                      Number of decimation stages</span>
+0014 <span class="comment">%   M:                      Decimation vector for decimation factor at each stage</span>
+0015 <span class="comment">%   delta_F:                Decimator transtion bandwidth</span>
+0016 <span class="comment">%   rp:                     Pass-band ripples</span>
+0017 <span class="comment">%   rc:                     Cutoff-band ripples</span>
+0018 <span class="comment">%   Filter_Type:            Regular FIR or Multi-band FIR -&gt; 'rg' or 'mb'</span>
+0019 <span class="comment">%   plot_filter_response:   Flag to plot filter frequency response or not -&gt; 1 or 0</span>
+0020 <span class="comment">%   mb_type:                Define the type of the multi-band filter,</span>
+0021 <span class="comment">%                           whether narrowband 'NB' or wideband 'WB'</span>
+0022 <span class="comment">%   mb_taps_lengths:        Vector holds the filter lengths for multi-band filters</span>
+0023 <span class="comment">%   CIC:                    Flag to set the first decimation stage to CIC</span>
+0024 <span class="comment">%                           filter (CIC = true) or not (CIC = false)</span>
+0025 <span class="comment">%   oSDM:                   Sigma-Delta modulator order, it is important</span>
+0026 <span class="comment">%                           for CIC filter order calculation</span>
+0027 <span class="comment">%   sdm_data:               Input stimuli data from prior SDM</span>
+0028 <span class="comment">%</span>
+0029 <span class="comment">%   filter_coefficients:    Decimator filter coefficients for eac decimation stage, it is</span>
+0030 <span class="comment">%                           in a form of matrix, each row represents a decimation stages</span>
+0031 <span class="comment">%   filter_lengths:         Vector hold the length of each decimation filter stage</span>
+0032 <span class="comment">%   DataOut:                Output filtered data from the CIC filter</span>
+0033 <span class="comment">%   Hcascaded:              CIC+Compensation transfer function</span>
+0034 
+0035 <span class="comment">% Check &amp; assigning arguments</span>
+0036 <span class="comment">% Number of input arguments</span>
+0037 nin     = nargin;
+0038 <span class="comment">% Checking arguments</span>
+0039 data    = <a href="#_sub1" class="code" title="subfunction data = ChkArgs(args,ni)">ChkArgs</a>(varargin,nin);
+0040 
+0041 <span class="keyword">if</span> data.CIC == false,
+0042     data = <a href="DecimationFilters.html" class="code" title="function data = DecimationFilters(varargin)">DecimationFilters</a>(<span class="string">'Fs'</span>, data.Fs, <span class="string">'OSR'</span>, data.OSR, <span class="string">'K'</span>, data.K, <span class="string">'M'</span>, data.M, <span class="string">'delta_F'</span>, data.delta_F, <span class="string">'rp'</span>, data.rp, <span class="string">'rc'</span>, data.rc, <span class="string">'Filter_Type'</span>, data.Filter_Type, <span class="string">'mb_type'</span>, data.mb_type, <span class="string">'Pass_Stop'</span>, data.Pass_Stop, <span class="string">'plot_filter_response'</span>, data.plot_filter_response);
+0043 <span class="keyword">else</span>
+0044     [data.DataOut data.Hcascaded] = <a href=".././aFunctions/CascadedCICCompensationFilter.html" class="code" title="function [DataOut Hcascaded] = CascadedCICCompensationFilter(M, R, N, Fs, Data)">CascadedCICCompensationFilter</a>(1, data.M(1), data.oSDM+1, data.Fs, data.sdm_data);
+0045     K = data.K-1;
+0046     M = data.M(2:length(data.M));
+0047     Fs = data.Fs/data.M(1);
+0048     OSR = data.OSR/data.M(1);
+0049     dataDecimationFilters = <a href="DecimationFilters.html" class="code" title="function data = DecimationFilters(varargin)">DecimationFilters</a>(<span class="string">'Fs'</span>, Fs, <span class="string">'OSR'</span>, OSR, <span class="string">'K'</span>, K, <span class="string">'M'</span>, M, <span class="string">'delta_F'</span>, data.delta_F, <span class="string">'rp'</span>, data.rp, <span class="string">'rc'</span>, data.rc, <span class="string">'Filter_Type'</span>, data.Filter_Type, <span class="string">'mb_type'</span>, data.mb_type, <span class="string">'Pass_Stop'</span>, data.Pass_Stop, <span class="string">'plot_filter_response'</span>, data.plot_filter_response);
+0050     data.filter_coefficients    = dataDecimationFilters.filter_coefficients;
+0051     data.filter_lengths         = dataDecimationFilters.filter_lengths;
+0052 <span class="keyword">end</span>
+0053 
+0054 <span class="comment">%%%%%%%%%%%%%%%</span>
+0055 <span class="comment">% Subfunction %</span>
+0056 <span class="comment">%%%%%%%%%%%%%%%</span>
+0057 <span class="comment">% This function is implemented by:</span>
+0058 <span class="comment">%   Micheal Maurer</span>
+0059 <span class="comment">% and modified by:</span>
+0060 <span class="comment">%   Ahmed Shahein</span>
+0061 
+0062 <a name="_sub1" href="#_subfunctions" class="code">function data = ChkArgs(args,ni)</a>
+0063 
+0064 <span class="keyword">if</span> ni == 0
+0065     error(<span class="string">'Syntax error::at least one argument required'</span>);
+0066 <span class="keyword">else</span>
+0067     data.yout = args{1};
+0068 <span class="keyword">end</span>
+0069 
+0070 <span class="keyword">if</span> ni==2
+0071     <span class="keyword">if</span> isa(args{2},<span class="string">'struct'</span>)
+0072         data        = args{2};
+0073         data.yout   = args{1};
+0074     <span class="keyword">else</span>
+0075         error(<span class="string">'Syntax error:command called with two arguments, where non of them is a structure'</span>)
+0076     <span class="keyword">end</span>
+0077 <span class="keyword">else</span>
+0078     <span class="comment">% Check syntax {'str_1',var_1,'str_2',var_2,...}</span>
+0079     <span class="keyword">for</span> i = 1:2:ni-1
+0080         <span class="keyword">if</span> ~isa(args{i},<span class="string">'char'</span>)
+0081             error(<span class="string">'Syntax error::string assumed'</span>)
+0082         <span class="keyword">end</span>
+0083     <span class="keyword">end</span>
+0084        
+0085     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'Fs'</span>,<span class="string">'numeric'</span>,<span class="string">'sample frequency is not numeric'</span>);
+0086     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'OSR'</span>,<span class="string">'numeric'</span>,<span class="string">'OSR is not numeric'</span>);
+0087     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'K'</span>,<span class="string">'numeric'</span>,<span class="string">'number of decimation stages is not a number'</span>);
+0088     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'M'</span>,<span class="string">'numeric'</span>,<span class="string">'decimation factor is not a number'</span>);  
+0089     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'delta_F'</span>,<span class="string">'numeric'</span>,<span class="string">'transition band is not numeric'</span>);
+0090     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'rp'</span>,<span class="string">'numeric'</span>,<span class="string">'passband ripples is not numeric'</span>);
+0091     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'rc'</span>,<span class="string">'numeric'</span>,<span class="string">'stopband ripples is not numeric'</span>);   
+0092     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'mb_taps_lengths'</span>,<span class="string">'numeric'</span>,<span class="string">''</span>);
+0093     
+0094     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'sdm_data'</span>,<span class="string">'numeric'</span>,<span class="string">'sigma delta modulator data is not numeric'</span>);
+0095     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'oSDM'</span>,<span class="string">'numeric'</span>,<span class="string">'sigma delta modulator order is not numeric'</span>);
+0096     
+0097     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'Filter_Type'</span>,<span class="string">'char'</span>,<span class="string">'filter architecture type is not a string'</span>);
+0098     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'mb_type'</span>,<span class="string">'char'</span>,<span class="string">'multi-band filter type is not a string'</span>);
+0099     
+0100     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'Pass_Stop'</span>,<span class="string">'logical'</span>,<span class="string">'boolean expression assumed'</span>);
+0101     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'plot_filter_response'</span>,<span class="string">'logical'</span>,<span class="string">'boolean expression assumed'</span>);
+0102     
+0103     data = <a href="#_sub2" class="code" title="subfunction data = ChkString(data,args,string,type,err_msg)">ChkString</a>(data,args,<span class="string">'CIC'</span>,<span class="string">'logical'</span>,<span class="string">'boolean expression assumed'</span>);
+0104     
+0105 <span class="keyword">end</span>
+0106 
+0107 data = <a href="#_sub3" class="code" title="subfunction data = ChkStruct(data)">ChkStruct</a>(data);
+0108 
+0109 <span class="comment">%%%%%%%%%%%%%%%</span>
+0110 <span class="comment">% Subfunction %</span>
+0111 <span class="comment">%%%%%%%%%%%%%%%</span>
+0112 <span class="comment">% This function is implemented by:</span>
+0113 <span class="comment">%   Micheal Maurer</span>
+0114 <span class="comment">% and modified by:</span>
+0115 <span class="comment">%   Ahmed Shahein</span>
+0116 
+0117 <a name="_sub2" href="#_subfunctions" class="code">function data = ChkString(data,args,string,type,err_msg)</a>
+0118 
+0119 pos = find(strcmp(args,string),1);
+0120 <span class="keyword">if</span> isempty(pos)
+0121 <span class="keyword">elseif</span> ~isa(args{pos+1},type) || (strcmp(<span class="string">'numeric'</span>,type) &amp;&amp; (any(isnan(args{pos+1})) || any(isinf(args{pos+1}))))
+0122     error([<span class="string">'Syntax error::'</span>,err_msg])
+0123 <span class="keyword">else</span>
+0124     data.(string)=args{pos+1};
+0125 <span class="keyword">end</span>
+0126 
+0127 <span class="comment">%%%%%%%%%%%%%%%</span>
+0128 <span class="comment">% Subfunction %</span>
+0129 <span class="comment">%%%%%%%%%%%%%%%</span>
+0130 <span class="comment">% This function is implemented by:</span>
+0131 <span class="comment">%   Micheal Maurer</span>
+0132 <span class="comment">% and modified by:</span>
+0133 <span class="comment">%   Ahmed Shahein</span>
+0134 
+0135 <a name="_sub3" href="#_subfunctions" class="code">function data = ChkStruct(data)</a>
+0136 
+0137 data.info.txt        = <span class="string">'\n'</span>;
+0138 <span class="keyword">if</span> ~isfield(data,<span class="string">'Fs'</span>)
+0139     data.Fs = 1;
+0140 <span class="keyword">end</span>
+0141 
+0142 <span class="keyword">if</span> ~isfield(data,<span class="string">'OSR'</span>)
+0143     data.OSR = 1;
+0144 <span class="keyword">end</span>
+0145 
+0146 <span class="keyword">if</span> ~isfield(data,<span class="string">'delta_F'</span>)
+0147     data.delta_F = 0.15;
+0148 <span class="keyword">end</span>
+0149 
+0150 <span class="keyword">if</span> ~isfield(data,<span class="string">'K'</span>)
+0151     error(<span class="string">'Decimation stages is not define'</span>);
+0152 <span class="keyword">end</span>
+0153 
+0154 <span class="keyword">if</span> ~isfield(data,<span class="string">'M'</span>)
+0155      error(<span class="string">'Decimation factor is not define'</span>);
+0156 <span class="keyword">end</span>
+0157 
+0158 <span class="keyword">if</span> ~isfield(data,<span class="string">'oSDM'</span>)
+0159      error(<span class="string">'Sigma-Delta Modulator order is not define'</span>);
+0160 <span class="keyword">end</span>
+0161 
+0162 <span class="keyword">if</span> ~isfield(data,<span class="string">'sdm_data'</span>)
+0163      error(<span class="string">'SDM bit-stream is not define'</span>);
+0164 <span class="keyword">end</span>
+0165 
+0166 <span class="keyword">if</span> ~isfield(data,<span class="string">'rp'</span>)
+0167     data.rp = 0.01;
+0168 <span class="keyword">end</span>
+0169 
+0170 <span class="keyword">if</span> ~isfield(data,<span class="string">'rc'</span>)
+0171     data.rc = 0.001;
+0172 <span class="keyword">end</span>
+0173 
+0174 <span class="keyword">if</span> ~isfield(data,<span class="string">'Filter_Type'</span>)
+0175     data.Filter_Type =<span class="string">'rg'</span>;
+0176 <span class="keyword">end</span>
+0177 
+0178 <span class="keyword">if</span> ~isfield(data,<span class="string">'mb_type'</span>)
+0179     data.mb_type =<span class="string">'WB'</span>;
+0180 <span class="keyword">end</span>
+0181 
+0182 <span class="keyword">if</span> ~isfield(data,<span class="string">'Pass_Stop'</span>)
+0183     data.Pass_Stop = true;
+0184 <span class="keyword">end</span>
+0185 
+0186 <span class="keyword">if</span> ~isfield(data,<span class="string">'CIC'</span>)
+0187     data.CIC = false;
+0188 <span class="keyword">end</span>
+0189 
+0190 <span class="keyword">if</span> ~isfield(data,<span class="string">'plot_filter_response'</span>)
+0191     data.print_IBN = false;
+0192 <span class="keyword">end</span>
+0193 
+0194 <span class="keyword">if</span> ~isfield(data,<span class="string">'print_Sig'</span>)
+0195     data.print_Sig = false;
+0196 <span class="keyword">end</span>
+0197 
+0198 <span class="keyword">if</span> ~isfield(data,<span class="string">'verbose'</span>)
+0199     data.info.verbose = false;
+0200 <span class="keyword">else</span>
+0201     data.info.verbose = data.verbose;
+0202     data = rmfield(data,<span class="string">'verbose'</span>);
+0203 <span class="keyword">end</span>    
+0204</pre></div>
+<hr><address>Generated on Tue 17-Apr-2012 15:26:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

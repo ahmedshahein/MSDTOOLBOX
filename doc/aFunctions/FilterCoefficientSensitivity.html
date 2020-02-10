@@ -1,0 +1,187 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of FilterCoefficientSensitivity</title>
+  <meta name="keywords" content="FilterCoefficientSensitivity">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- # aFunctions -->
+<h1>FilterCoefficientSensitivity
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [qcoeff Sn] = FilterCoefficientSensitivity(coeff, q, Fs, axis_ranges, plot_freq_response, plot_Sn) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">
+ [qcoeff Sn] = FilterCoefficientSensitivity(coeff, q, Fs, axis_ranges, plot_freq_response, plot_Sn)
+
+ This function calculate the quantized filter coefficients due to the 
+ different bit widths specificed in the vector 'q'. It exports matrix
+ holding the quantized filter coefficients and matrix holds the senstivity
+ of the filter coefficients. It is for single filter only.
+
+   coeff:              Ideal filter coefficients
+   q:                  vector holds different bit widths for quantizing the filter
+                       coefficients, it can holds from 1 till 6 values
+   Fs:                 Sampling frequency
+   axis_ranges:        Set a specific axes range
+   plot_freq_response: Flag to enable (1) or disable (0) ploting the filter
+                       frequency response
+   plot_Sn:            Flag to enable (1) or disable (0) ploting the
+                       coefficient sensitivity</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="QuantizedCoeff.html" class="code" title="function qcoeff = QuantizedCoeff(n, Coeff_Format, coeff)">QuantizedCoeff</a>	</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href=".././bFunctions/DecimatorQuantizationCoefficientSensitivity.html" class="code" title="function data = DecimatorQuantizationCoefficientSensitivity(varargin)">DecimatorQuantizationCoefficientSensitivity</a>	</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [qcoeff Sn] = FilterCoefficientSensitivity(coeff, q, Fs, axis_ranges, plot_freq_response, plot_Sn)</a>
+0002 
+0003 <span class="comment">%</span>
+0004 <span class="comment">% [qcoeff Sn] = FilterCoefficientSensitivity(coeff, q, Fs, axis_ranges, plot_freq_response, plot_Sn)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% This function calculate the quantized filter coefficients due to the</span>
+0007 <span class="comment">% different bit widths specificed in the vector 'q'. It exports matrix</span>
+0008 <span class="comment">% holding the quantized filter coefficients and matrix holds the senstivity</span>
+0009 <span class="comment">% of the filter coefficients. It is for single filter only.</span>
+0010 <span class="comment">%</span>
+0011 <span class="comment">%   coeff:              Ideal filter coefficients</span>
+0012 <span class="comment">%   q:                  vector holds different bit widths for quantizing the filter</span>
+0013 <span class="comment">%                       coefficients, it can holds from 1 till 6 values</span>
+0014 <span class="comment">%   Fs:                 Sampling frequency</span>
+0015 <span class="comment">%   axis_ranges:        Set a specific axes range</span>
+0016 <span class="comment">%   plot_freq_response: Flag to enable (1) or disable (0) ploting the filter</span>
+0017 <span class="comment">%                       frequency response</span>
+0018 <span class="comment">%   plot_Sn:            Flag to enable (1) or disable (0) ploting the</span>
+0019 <span class="comment">%                       coefficient sensitivity</span>
+0020 
+0021 <span class="comment">% Initialization for internal variables</span>
+0022 qcoeff=[];
+0023 Hq=[];
+0024 Fq=[];
+0025 Magq=[];
+0026 Sn=[];
+0027 sort_Sn=[];
+0028 
+0029 <span class="comment">% Calculate the quantized coefficients due to the input quantized bit</span>
+0030 <span class="comment">% widths in vector n</span>
+0031 <span class="keyword">for</span> i = 1 : length(q),
+0032     qcoeff(i, :) = <a href="QuantizedCoeff.html" class="code" title="function qcoeff = QuantizedCoeff(n, Coeff_Format, coeff)">QuantizedCoeff</a>(q(i), <span class="string">'fixed'</span>, coeff);
+0033 <span class="keyword">end</span>
+0034 
+0035 <span class="comment">% The frequency response of the ideal input filter</span>
+0036 [H F]=freqz(coeff, [1], 2^10, Fs);
+0037 
+0038 <span class="comment">% The frequency response of the quantized filters</span>
+0039 <span class="keyword">for</span> j = 1 : length(q),
+0040     [Hq(j, :) Fq(j, :)]=freqz(qcoeff(j, :), [1], 2^10, Fs);
+0041 <span class="keyword">end</span>
+0042 
+0043 <span class="comment">% The magnitude of the ideal input filter</span>
+0044 Mag = 20*log10(abs(H));
+0045 
+0046 <span class="comment">% The magnitude of the quantized filters</span>
+0047 <span class="keyword">for</span> k = 1 : length(q),
+0048     Magq(k, :) = 20*log10(abs(Hq(k, :)));
+0049 <span class="keyword">end</span>
+0050 
+0051 <span class="comment">% Color vector to be used in loop plotting</span>
+0052 color = [<span class="string">'r'</span>, <span class="string">'k'</span>, <span class="string">'m'</span>, <span class="string">'g'</span>, <span class="string">'c'</span>, <span class="string">'y'</span>, <span class="string">'d'</span>, <span class="string">'*'</span>, <span class="string">'+'</span>];
+0053 
+0054 <span class="comment">% Plot the frequency response of the ideal and quantized filters</span>
+0055 <span class="keyword">if</span> nargin == 5 | nargin == 6 &amp; plot_freq_response == 1,
+0056     FIG = figure(<span class="string">'Name'</span>, <span class="string">'Filter Frequency Response'</span>, <span class="string">'NumberTitle'</span> , <span class="string">'off'</span>);
+0057     plot(F, Mag, <span class="string">'b'</span>);
+0058     hold on
+0059     <span class="keyword">for</span> l = 1 : length(q),
+0060         plot(F, Magq(l, :), color(l));
+0061     <span class="keyword">end</span>
+0062     grid on
+0063     xlabel(<span class="string">'Frequency-Hz'</span>);
+0064     ylabel(<span class="string">'Amplitude-dB'</span>);
+0065     <span class="keyword">if</span> axis_ranges ~= 0,
+0066         axis(axis_ranges);
+0067     <span class="keyword">else</span>
+0068         axis auto;
+0069     <span class="keyword">end</span>
+0070 
+0071     legend(<span class="string">'Ideal'</span>);
+0072     <span class="keyword">if</span> length(q) == 1,
+0073         legend(<span class="string">'Ideal'</span>, [<span class="string">'Quantized '</span> num2str(q(1)) <span class="string">'-bit'</span>]);
+0074     <span class="keyword">elseif</span> length(q) == 2, 
+0075         legend(<span class="string">'Ideal'</span>, [<span class="string">'Quantized '</span> num2str(q(1)) <span class="string">'-bit'</span>], [<span class="string">'Quantized '</span> num2str(q(2)) <span class="string">'-bit'</span>]);
+0076     <span class="keyword">elseif</span> length(q) == 3, 
+0077         legend(<span class="string">'Ideal'</span>, [<span class="string">'Quantized '</span> num2str(q(1)) <span class="string">'-bit'</span>], [<span class="string">'Quantized '</span> num2str(q(2)) <span class="string">'-bit'</span>], [<span class="string">'Quantized '</span> num2str(q(3)) <span class="string">'-bit'</span>]);
+0078     <span class="keyword">elseif</span> length(q) == 4, 
+0079         legend(<span class="string">'Ideal'</span>, [<span class="string">'Quantized '</span> num2str(q(1)) <span class="string">'-bit'</span>], [<span class="string">'Quantized '</span> num2str(q(2)) <span class="string">'-bit'</span>], [<span class="string">'Quantized '</span> num2str(q(3)) <span class="string">'-bit'</span>], [<span class="string">'Quantized '</span> num2str(q(4)) <span class="string">'-bit'</span>]);
+0080     <span class="keyword">elseif</span> length(q) == 5, 
+0081         legend(<span class="string">'Ideal'</span>, [<span class="string">'Quantized '</span> num2str(q(1)) <span class="string">'-bit'</span>], [<span class="string">'Quantized '</span> num2str(q(2)) <span class="string">'-bit'</span>],  [<span class="string">'Quantized '</span> num2str(q(3)) <span class="string">'-bit'</span>], [<span class="string">'Quantized '</span> num2str(q(4)) <span class="string">'-bit'</span>], [<span class="string">'Quantized '</span> num2str(q(5)) <span class="string">'-bit'</span>]);
+0082     <span class="keyword">elseif</span> length(q) == 6, 
+0083         legend(<span class="string">'Ideal'</span>, [<span class="string">'Quantized '</span> num2str(q(1)) <span class="string">'-bit'</span>], [<span class="string">'Quantized '</span> num2str(q(2)) <span class="string">'-bit'</span>],  [<span class="string">'Quantized '</span> num2str(q(3)) <span class="string">'-bit'</span>], [<span class="string">'Quantized '</span> num2str(q(4)) <span class="string">'-bit'</span>], [<span class="string">'Quantized '</span> num2str(q(5)) <span class="string">'-bit'</span>], [<span class="string">'Quantized '</span> num2str(q(6)) <span class="string">'-bit'</span>]);
+0084     <span class="keyword">end</span>
+0085 <span class="keyword">end</span>
+0086 
+0087 <span class="comment">% Estimate the sensitvity of each quantized filter compared to the ideal</span>
+0088 <span class="comment">% filter</span>
+0089 <span class="keyword">for</span> m = 1 : length(q),
+0090     qcoeff_tmp = qcoeff(m,:);
+0091     <span class="keyword">for</span> o = 1 : length(coeff),
+0092         Sn(m, o) =sqrt((qcoeff_tmp(o) - coeff(o))^2);
+0093     <span class="keyword">end</span>
+0094 <span class="keyword">end</span>
+0095 
+0096 <span class="comment">% Sort the sensitvity in ascending form</span>
+0097 <span class="keyword">for</span> n = 1 : length(q),
+0098     sort_Sn(n, :) = sort(Sn(n, :));
+0099 <span class="keyword">end</span>
+0100 
+0101 <span class="comment">% Plot the sensitvity for the quantized coefficeints</span>
+0102 <span class="keyword">if</span> plot_Sn == 1,
+0103     FIG = figure(<span class="string">'Name'</span>, <span class="string">'Coefficients Sensitvity'</span>, <span class="string">'NumberTitle'</span> , <span class="string">'off'</span>);
+0104     <span class="keyword">for</span> p = 1: length(q),
+0105         plot(sort_Sn(p, :), (color(p))); 
+0106         hold on
+0107     <span class="keyword">end</span>
+0108     grid on
+0109     xlabel(<span class="string">'Filter Length'</span>);
+0110     ylabel(<span class="string">'Filter Coefficient Sensitvity'</span>)
+0111 
+0112     <span class="keyword">if</span> length(q) == 1,
+0113         legend([<span class="string">'Quantized '</span> num2str(q(1)) <span class="string">'-bit'</span>]);
+0114     <span class="keyword">elseif</span> length(q) == 2, 
+0115         legend([<span class="string">'Quantized '</span> num2str(q(1)) <span class="string">'-bit'</span>], [<span class="string">'Quantized '</span> num2str(q(2)) <span class="string">'-bit'</span>]);
+0116     <span class="keyword">elseif</span> length(q) == 3, 
+0117         legend([<span class="string">'Quantized '</span> num2str(q(1)) <span class="string">'-bit'</span>], [<span class="string">'Quantized '</span> num2str(q(2)) <span class="string">'-bit'</span>], [<span class="string">'Quantized '</span> num2str(q(3)) <span class="string">'-bit'</span>]);
+0118     <span class="keyword">elseif</span> length(q) == 4, 
+0119         legend([<span class="string">'Quantized '</span> num2str(q(1)) <span class="string">'-bit'</span>], [<span class="string">'Quantized '</span> num2str(q(2)) <span class="string">'-bit'</span>], [<span class="string">'Quantized '</span> num2str(q(3)) <span class="string">'-bit'</span>], [<span class="string">'Quantized '</span> num2str(q(4)) <span class="string">'-bit'</span>]);
+0120     <span class="keyword">elseif</span> length(q) == 5, 
+0121         legend([<span class="string">'Quantized '</span> num2str(q(1)) <span class="string">'-bit'</span>], [<span class="string">'Quantized '</span> num2str(q(2)) <span class="string">'-bit'</span>],  [<span class="string">'Quantized '</span> num2str(q(3)) <span class="string">'-bit'</span>], [<span class="string">'Quantized '</span> num2str(q(4)) <span class="string">'-bit'</span>], [<span class="string">'Quantized '</span> num2str(q(5)) <span class="string">'-bit'</span>]);
+0122     <span class="keyword">elseif</span> length(q) == 6, 
+0123         legend([<span class="string">'Quantized '</span> num2str(q(1)) <span class="string">'-bit'</span>], [<span class="string">'Quantized '</span> num2str(q(2)) <span class="string">'-bit'</span>],  [<span class="string">'Quantized '</span> num2str(q(3)) <span class="string">'-bit'</span>], [<span class="string">'Quantized '</span> num2str(q(4)) <span class="string">'-bit'</span>], [<span class="string">'Quantized '</span> num2str(q(5)) <span class="string">'-bit'</span>], [<span class="string">'Quantized '</span> num2str(q(6)) <span class="string">'-bit'</span>]);
+0124     <span class="keyword">end</span>
+0125 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Tue 17-Apr-2012 15:26:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

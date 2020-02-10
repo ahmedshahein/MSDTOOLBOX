@@ -1,0 +1,164 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of TestOptiDeviation</title>
+  <meta name="keywords" content="TestOptiDeviation">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- # aFunctions -->
+<h1>TestOptiDeviation
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function coeff_matrix = TestOptiDeviation(filter_coefficients, filter_lengths, Fs, OSR, Fsignal, K, M, Q, Nb, sdm_data, deviation_values) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">
+ coeff_matrix = TestOptiDeviation(filter_coefficients, filter_lengths, Fs, OSR, Fsignal, K, M, Q, sdm_data, deviation_values)
+
+ This function used to test the effect of mixed coefficients due to
+ acceptable deviation value in the coefficients. The test procedure as
+ follow:
+   1. Calculate the IBN for this filter stage without any rounding in the
+      coefficients.
+   2. Create a matrix of new filter coefficietns holding a mixed coefficients
+      due to the acceptable deviation range and the number of bits in SPT
+      numbers.
+   3. Test the effect of each new filter coeffiecients 'mixed one' in the IBN
+      after this stage.
+   4. Export a table contains:
+       Column(1)   Column(2)           Column(3)                   Column(4)
+       N           Deviation Value     Count of rounded coeff.     IBN
+
+   filter_coefficients:    Matrix of filter coefficients exported from 'decimation_filters' function, 
+                           which represents the coefficients at each stage
+   filter_lengths:         Vector of filter lengths exported from 'decimation_filters' function, which 
+                           represents the filter length at each stage 
+   sdm_data:               Array holds the Delta-Sigma Modulator data
+   Fs:                     Sampling frequency
+   OSR:                    Over Sampling Ratio
+   Fsignal:                Signal frequency
+   K:                      Number of decimation stages
+   M:                      Vector holds the decimation factor at each stage</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="OptiMixedCoeffDeviation.html" class="code" title="function [mixed_coeff_matrix count] = OptiMixedCoeffDeviation(coeff, Q, Nb, deviation_values)">OptiMixedCoeffDeviation</a>	</li><li><a href="TestIBNforNormCoeffMatrix.html" class="code" title="function [IBN_without_norm IBN_norm] = TestIBNforNormCoeffMatrix(Fs, OSR, Fsignal, M, coeff_matrix, Q, data, Fs_stage)">TestIBNforNormCoeffMatrix</a>	</li></ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+<!-- crossreference -->
+
+<h2><a name="_subfunctions"></a>SUBFUNCTIONS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="#_sub1" class="code">function coeff_matrix= test_opti_deviation_single_stage(coeff, Fs, OSR, Fsignal, M, Q, Nb, data, deviation_values, Fs_stage)</a></li></ul>
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function coeff_matrix = TestOptiDeviation(filter_coefficients, filter_lengths, Fs, OSR, Fsignal, K, M, Q, Nb, sdm_data, deviation_values)</a>
+0002 
+0003 <span class="comment">%</span>
+0004 <span class="comment">% coeff_matrix = TestOptiDeviation(filter_coefficients, filter_lengths, Fs, OSR, Fsignal, K, M, Q, sdm_data, deviation_values)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% This function used to test the effect of mixed coefficients due to</span>
+0007 <span class="comment">% acceptable deviation value in the coefficients. The test procedure as</span>
+0008 <span class="comment">% follow:</span>
+0009 <span class="comment">%   1. Calculate the IBN for this filter stage without any rounding in the</span>
+0010 <span class="comment">%      coefficients.</span>
+0011 <span class="comment">%   2. Create a matrix of new filter coefficietns holding a mixed coefficients</span>
+0012 <span class="comment">%      due to the acceptable deviation range and the number of bits in SPT</span>
+0013 <span class="comment">%      numbers.</span>
+0014 <span class="comment">%   3. Test the effect of each new filter coeffiecients 'mixed one' in the IBN</span>
+0015 <span class="comment">%      after this stage.</span>
+0016 <span class="comment">%   4. Export a table contains:</span>
+0017 <span class="comment">%       Column(1)   Column(2)           Column(3)                   Column(4)</span>
+0018 <span class="comment">%       N           Deviation Value     Count of rounded coeff.     IBN</span>
+0019 <span class="comment">%</span>
+0020 <span class="comment">%   filter_coefficients:    Matrix of filter coefficients exported from 'decimation_filters' function,</span>
+0021 <span class="comment">%                           which represents the coefficients at each stage</span>
+0022 <span class="comment">%   filter_lengths:         Vector of filter lengths exported from 'decimation_filters' function, which</span>
+0023 <span class="comment">%                           represents the filter length at each stage</span>
+0024 <span class="comment">%   sdm_data:               Array holds the Delta-Sigma Modulator data</span>
+0025 <span class="comment">%   Fs:                     Sampling frequency</span>
+0026 <span class="comment">%   OSR:                    Over Sampling Ratio</span>
+0027 <span class="comment">%   Fsignal:                Signal frequency</span>
+0028 <span class="comment">%   K:                      Number of decimation stages</span>
+0029 <span class="comment">%   M:                      Vector holds the decimation factor at each stage</span>
+0030 <span class="comment">%</span>
+0031 
+0032 depth = length(deviation_values)+1;
+0033 
+0034 filter_downsample = struct(<span class="string">'filter_data'</span>, [], <span class="string">'downsample_data'</span>, []);
+0035 
+0036 <span class="keyword">for</span> i = 1 : K,
+0037     <span class="keyword">if</span> i == 1,
+0038         filter_downsample(i).filter_data = filter(filter_coefficients(i,1:filter_lengths(i)), [1], sdm_data);
+0039         filter_downsample(i).downsample_data = downsample(filter_downsample(i).filter_data, M(i));
+0040     <span class="keyword">else</span>
+0041         filter_downsample(i).filter_data = filter(filter_coefficients(i,1:filter_lengths(i)), [1], filter_downsample(i-1).downsample_data);
+0042         filter_downsample(i).downsample_data = downsample(filter_downsample(i).filter_data, M(i));
+0043     <span class="keyword">end</span>
+0044 <span class="keyword">end</span>
+0045 
+0046 <span class="keyword">for</span> j = 1 : K,
+0047     <span class="keyword">if</span> j == 1,
+0048         coeff_matrix(1+(j-1)*depth:j*depth,:) = <a href="#_sub1" class="code" title="subfunction coeff_matrix= test_opti_deviation_single_stage(coeff, Fs, OSR, Fsignal, M, Q, Nb, data, deviation_values, Fs_stage)">test_opti_deviation_single_stage</a>(filter_coefficients(j,:), Fs, OSR, Fsignal, M(j), Q(j), Nb, sdm_data, deviation_values(j,:), prod(M(1:j)));
+0049     <span class="keyword">else</span>
+0050         coeff_matrix(1+(j-1)*depth:j*depth,:) = <a href="#_sub1" class="code" title="subfunction coeff_matrix= test_opti_deviation_single_stage(coeff, Fs, OSR, Fsignal, M, Q, Nb, data, deviation_values, Fs_stage)">test_opti_deviation_single_stage</a>(filter_coefficients(j,:), Fs, OSR, Fsignal, M(j), Q(j), Nb, filter_downsample(j-1).downsample_data, deviation_values(j,:), (prod(M(1:j))));
+0051     <span class="keyword">end</span>
+0052 <span class="keyword">end</span>
+0053 
+0054 
+0055 <span class="comment">%%%%%%%%%%%%%%%</span>
+0056 <span class="comment">% Subfunction %</span>
+0057 <span class="comment">%%%%%%%%%%%%%%%</span>
+0058 <a name="_sub1" href="#_subfunctions" class="code">function coeff_matrix= test_opti_deviation_single_stage(coeff, Fs, OSR, Fsignal, M, Q, Nb, data, deviation_values, Fs_stage)</a>
+0059 
+0060 <span class="comment">% This function used to test the effect of mixed coefficients due to</span>
+0061 <span class="comment">% acceptable deviation value in the coefficients. The test procedure as</span>
+0062 <span class="comment">% follow:</span>
+0063 <span class="comment">%   1. Calculate the IBN for this filter stage without any rounding in the</span>
+0064 <span class="comment">%      coefficients.</span>
+0065 <span class="comment">%   2. Create a matrix of new filter coefficietns holding a mixed coefficients</span>
+0066 <span class="comment">%      due to the acceptable deviation range and the number of bits in SPT</span>
+0067 <span class="comment">%      numbers.</span>
+0068 <span class="comment">%   3. Test the effect of each new filter coeffiecients 'mixed one' in the IBN</span>
+0069 <span class="comment">%      after this stage.</span>
+0070 <span class="comment">%   4. Export a table contains:</span>
+0071 <span class="comment">%       Column(1)   Column(2)           Column(3)                   Column(4)</span>
+0072 <span class="comment">%       N           Deviation Value     Count of rounded coeff.     IBN</span>
+0073 
+0074 [IBN_ideal IBN_ideal_norm] = <a href="TestIBNforNormCoeffMatrix.html" class="code" title="function [IBN_without_norm IBN_norm] = TestIBNforNormCoeffMatrix(Fs, OSR, Fsignal, M, coeff_matrix, Q, data, Fs_stage)">TestIBNforNormCoeffMatrix</a>(Fs, OSR, Fsignal, M, coeff, Q, data, Fs_stage);
+0075 
+0076 [mixed_coeff_matrix count] = <a href="OptiMixedCoeffDeviation.html" class="code" title="function [mixed_coeff_matrix count] = OptiMixedCoeffDeviation(coeff, Q, Nb, deviation_values)">OptiMixedCoeffDeviation</a>(coeff, Q, Nb, deviation_values);
+0077 
+0078 [IBN_without_norm IBN_norm] = <a href="TestIBNforNormCoeffMatrix.html" class="code" title="function [IBN_without_norm IBN_norm] = TestIBNforNormCoeffMatrix(Fs, OSR, Fsignal, M, coeff_matrix, Q, data, Fs_stage)">TestIBNforNormCoeffMatrix</a>(Fs, OSR, Fsignal, M, mixed_coeff_matrix(:,3:length(mixed_coeff_matrix)), Q, data, Fs_stage);
+0079 
+0080 table = [mixed_coeff_matrix(:,1) reshape(count,length(count),1) reshape(IBN_norm,length(IBN_norm),1) mixed_coeff_matrix(:,3:length(mixed_coeff_matrix))];
+0081 
+0082 ideal_filter = [nan, nan, IBN_ideal_norm, zeros(1,length(coeff))];
+0083 
+0084 coeff_matrix = [ideal_filter; table];
+0085 
+0086 fprintf(<span class="string">'\n'</span>);
+0087 fprintf(<span class="string">'Deviation -- Count -- IBN\n'</span>);
+0088 <span class="keyword">for</span> i = 1 : length(deviation_values)+1,    
+0089     fprintf(<span class="string">'%2.1f         %3.0f       %3.3f\n'</span>, coeff_matrix(i,1:3));
+0090 <span class="keyword">end</span></pre></div>
+<hr><address>Generated on Tue 17-Apr-2012 15:26:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>

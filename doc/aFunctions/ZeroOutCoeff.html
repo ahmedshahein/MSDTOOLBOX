@@ -1,0 +1,77 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+                "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<head>
+  <title>Description of ZeroOutCoeff</title>
+  <meta name="keywords" content="ZeroOutCoeff">
+  <meta name="description" content="">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+  <meta name="generator" content="m2html &copy; 2005 Guillaume Flandin">
+  <meta name="robots" content="index, follow">
+  <link type="text/css" rel="stylesheet" href="../m2html.css">
+  <script type="text/javascript">
+    if (top.frames.length == 0) { top.location = "../index.html"; };
+  </script>
+</head>
+<body>
+<a name="_top"></a>
+<!-- # aFunctions -->
+<h1>ZeroOutCoeff
+</h1>
+
+<h2><a name="_name"></a>PURPOSE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong></strong></div>
+
+<h2><a name="_synopsis"></a>SYNOPSIS <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="box"><strong>function [zerocoeff] = ZeroOutCoeff(coeff) </strong></div>
+
+<h2><a name="_description"></a>DESCRIPTION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre class="comment">
+ [zerocoeff] = ZeroOutCoeff(coeff)
+
+ This function to set every second coefficient to 0 except 
+ the middle one useful for the design of halfband filters
+ length of coeff. has to be uneven
+
+ This function was developed by Niklas Lotze.
+ lotze@imtek.uni-freiburg.de</pre></div>
+
+<!-- crossreference -->
+<h2><a name="_cross"></a>CROSS-REFERENCE INFORMATION <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+This function calls:
+<ul style="list-style-image:url(../matlabicon.gif)">
+</ul>
+This function is called by:
+<ul style="list-style-image:url(../matlabicon.gif)">
+<li><a href="HalfBandFilter.html" class="code" title="function HB_stage = HalfBandFilter(Rpb, Rsb, Type, deltaF_2, N)">HalfBandFilter</a>	</li></ul>
+<!-- crossreference -->
+
+
+
+<h2><a name="_source"></a>SOURCE CODE <a href="#_top"><img alt="^" border="0" src="../up.png"></a></h2>
+<div class="fragment"><pre>0001 <a name="_sub0" href="#_subfunctions" class="code">function [zerocoeff] = ZeroOutCoeff(coeff)</a>
+0002 
+0003 <span class="comment">%</span>
+0004 <span class="comment">% [zerocoeff] = ZeroOutCoeff(coeff)</span>
+0005 <span class="comment">%</span>
+0006 <span class="comment">% This function to set every second coefficient to 0 except</span>
+0007 <span class="comment">% the middle one useful for the design of halfband filters</span>
+0008 <span class="comment">% length of coeff. has to be uneven</span>
+0009 <span class="comment">%</span>
+0010 <span class="comment">% This function was developed by Niklas Lotze.</span>
+0011 <span class="comment">% lotze@imtek.uni-freiburg.de</span>
+0012 <span class="comment">%</span>
+0013 
+0014 middlecoeff = (length(coeff)+1)/2;
+0015 <span class="comment">% check if middle coefficient has even index</span>
+0016 <span class="keyword">if</span> floor(middlecoeff/2) == middlecoeff/2
+0017     coeff(2:2:middlecoeff-1) = 0;
+0018     coeff(middlecoeff+2:2:length(coeff)) = 0;
+0019 <span class="keyword">else</span>
+0020     coeff(1:2:middlecoeff-1) = 0;
+0021     coeff(middlecoeff+2:2:length(coeff)) = 0;
+0022 <span class="keyword">end</span>
+0023 zerocoeff=coeff;</pre></div>
+<hr><address>Generated on Tue 17-Apr-2012 15:26:28 by <strong><a href="http://www.artefact.tk/software/matlab/m2html/" target="_parent">m2html</a></strong> &copy; 2005</address>
+</body>
+</html>
